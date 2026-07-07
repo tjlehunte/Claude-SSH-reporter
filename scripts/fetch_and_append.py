@@ -156,7 +156,12 @@ def fetch_proxy():
 def main():
     history = load_history()
     watermark = high_water_mark(history)
-    if watermark:
+    backfill_hours = os.environ.get("BACKFILL_HOURS") or None
+
+    if backfill_hours:
+        since_utc = datetime.utcnow() - timedelta(hours=float(backfill_hours))
+        print(f"[fetch] backfill mode: requesting history since {since_utc} UTC ({backfill_hours}h)")
+    elif watermark:
         since_utc = datetime.strptime(watermark, "%Y-%m-%d %H:%M:%S")
     else:
         since_utc = datetime.utcnow() - timedelta(hours=DEFAULT_LOOKBACK_HOURS)
@@ -167,26 +172,37 @@ def main():
         if not new_rows:
             raise RuntimeError("gateway returned zero rows for the requested window")
     except Exception as exc:
+        if backfill_hours:
+            # The Render proxy only ever exposes a ~36h rolling window, so it
+            # can't satisfy a multi-day backfill request - fail loudly instead
+            # of silently returning a much smaller window than asked for.
+            print(f"[fetch] backfill requires the direct gateway; it was unavailable ({exc})", file=sys.stderr)
+            raise
         print(f"[fetch] direct gateway unavailable ({exc}); falling back to Render proxy", file=sys.stderr)
         source = "proxy"
         new_rows = fetch_proxy()
 
-    existing_dates = {row["MessageDate"] for row in history}
-    appended = [row for row in new_rows if row["MessageDate"] not in existing_dates]
-    if watermark:
-        appended = [row for row in appended if row["MessageDate"] > watermark]
-    appended.sort(key=lambda r: r["MessageDate"])
+    # Merge by MessageDate (last write wins) and rewrite the whole file in
+    # order, so a backfill's older rows land in the right place rather than
+    # just being tacked on to the end of the file.
+    combined = {row["MessageDate"]: row for row in history}
+    added = sum(1 for row in new_rows if row["MessageDate"] not in combined)
+    combined.update({row["MessageDate"]: row for row in new_rows})
+    all_rows = sorted(combined.values(), key=lambda r: r["MessageDate"])
 
-    if not appended:
+    if added == 0:
         print(f"[fetch] source={source}: no new records since {watermark or 'beginning'}")
         return
 
     HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with HISTORY_FILE.open("a", encoding="utf-8") as f:
-        for row in appended:
+    with HISTORY_FILE.open("w", encoding="utf-8") as f:
+        for row in all_rows:
             f.write(json.dumps(row, sort_keys=True) + "\n")
 
-    print(f"[fetch] source={source}: appended {len(appended)} record(s), latest={appended[-1]['MessageDate']}")
+    print(
+        f"[fetch] source={source}: added {added} new record(s) (total {len(all_rows)}), "
+        f"latest={all_rows[-1]['MessageDate']}"
+    )
 
 
 if __name__ == "__main__":

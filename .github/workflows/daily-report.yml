@@ -3,7 +3,12 @@ name: Daily sensor report
 on:
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      backfill_hours:
+        description: 'One-time backfill: hours of history to pull from the gateway, ignoring the usual high-water mark'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -29,6 +34,7 @@ jobs:
         env:
           MONNIT_API_KEY_ID: ${{ secrets.MONNIT_API_KEY_ID }}
           MONNIT_API_SECRET_KEY: ${{ secrets.MONNIT_API_SECRET_KEY }}
+          BACKFILL_HOURS: ${{ github.event.inputs.backfill_hours }}
         run: python scripts/fetch_and_append.py
 
       - name: Generate daily report
