@@ -20,7 +20,14 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from sensor_utils import condensation_margin, load_history_wide, risk_color, room_order, to_long
+from sensor_utils import (
+    condensation_margin,
+    load_history_wide,
+    rank_thermal_comfort,
+    risk_color,
+    room_order,
+    to_long,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 WEEKLY_DIR = ROOT / "reports" / "weekly"
@@ -117,9 +124,12 @@ def main():
     rooms = room_order(long_df)
 
     avg_humidity = long_df[long_df["Metric"] == "Humidity"].groupby("Room")["Value"].mean().to_dict()
+    avg_temperature = long_df[long_df["Metric"] == "Temperature"].groupby("Room")["Value"].mean().to_dict()
 
     margin_df = condensation_margin(long_df)
     worst_margin = margin_df.groupby("Room")["Margin"].min().to_dict() if not margin_df.empty else {}
+
+    comfort_ranking = rank_thermal_comfort(avg_temperature, avg_humidity)
 
     raw_temp_chart = fig_to_base64(
         plot_raw_series(long_df, rooms, "Temperature", "°C", "Raw temperature readings by room")
@@ -153,6 +163,12 @@ def main():
             f"Lowest temperature this week: {coldest_row['Value']:.1f}°C in {coldest_row['Room']} "
             f"on {coldest_row['MessageDate'].strftime('%Y-%m-%d %H:%M')}."
         )
+
+    humidity_series = long_df[long_df["Metric"] == "Humidity"]
+    if not humidity_series.empty:
+        most_humid_row = humidity_series.loc[humidity_series["Value"].idxmax()]
+        least_humid_row = humidity_series.loc[humidity_series["Value"].idxmin()]
+
     if avg_humidity:
         most_humid = max(avg_humidity, key=avg_humidity.get)
         insights.append(f"Most humid room on average: {most_humid} ({avg_humidity[most_humid]:.0f}% RH).")
@@ -166,6 +182,21 @@ def main():
         if len(series) >= 2:
             insights.append(f"Amp-hours consumed this week: {series.iloc[-1] - series.iloc[0]:.2f} Ah.")
 
+    # Daily whole-house (indoor) mean, for spotting a pattern across the week
+    # cheaply from a handful of numbers instead of re-reading raw history or
+    # visually inspecting the chart images.
+    indoor_rooms = [r for r in rooms if r != "Outside"]
+    daily_indoor_temp = (
+        temp_series[temp_series["Room"].isin(indoor_rooms)]
+        .assign(Day=lambda d: d["MessageDate"].dt.strftime("%Y-%m-%d"))
+        .groupby("Day")["Value"].mean()
+    )
+    daily_indoor_humidity = (
+        humidity_series[humidity_series["Room"].isin(indoor_rooms)]
+        .assign(Day=lambda d: d["MessageDate"].dt.strftime("%Y-%m-%d"))
+        .groupby("Day")["Value"].mean()
+    )
+
     report_label = f"{start.strftime('%Y-%m-%d')}_to_{end.strftime('%Y-%m-%d')}"
 
     # Compact machine-readable stats, meant for a separate lightweight process
@@ -176,10 +207,27 @@ def main():
         "window_start": start.strftime("%Y-%m-%d %H:%M:%S"),
         "window_end": end.strftime("%Y-%m-%d %H:%M:%S"),
         "rooms": rooms,
+        "avg_temperature_by_room": {k: round(v, 1) for k, v in avg_temperature.items()},
         "avg_humidity_by_room": {k: round(v, 1) for k, v in avg_humidity.items()},
         "worst_condensation_margin_by_room": {k: round(v, 1) for k, v in worst_margin.items()},
+        "daily_mean_temperature_indoor": [
+            {"date": d, "value": round(v, 1)} for d, v in daily_indoor_temp.items()
+        ],
+        "daily_mean_humidity_indoor": [
+            {"date": d, "value": round(v, 1)} for d, v in daily_indoor_humidity.items()
+        ],
+        "comfort_standard": {
+            "name": "CIBSE Guide A",
+            "target_temperature_living_areas_c": 21.0,
+            "target_temperature_bedrooms_c": 18.0,
+            "comfortable_humidity_range_pct_rh": [40.0, 60.0],
+        },
+        "thermal_comfort_ranking": comfort_ranking,
         "insights": insights,
     }
+    if comfort_ranking:
+        stats["best_comfort_room"] = comfort_ranking[0]
+        stats["worst_comfort_room"] = comfort_ranking[-1]
     if not temp_series.empty:
         stats["peak_temperature"] = {
             "value": round(float(hottest_row["Value"]), 1),
@@ -190,6 +238,23 @@ def main():
             "value": round(float(coldest_row["Value"]), 1),
             "room": coldest_row["Room"],
             "timestamp": coldest_row["MessageDate"].strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    if not humidity_series.empty:
+        stats["peak_humidity"] = {
+            "value": round(float(most_humid_row["Value"]), 1),
+            "room": most_humid_row["Room"],
+            "timestamp": most_humid_row["MessageDate"].strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        stats["lowest_humidity"] = {
+            "value": round(float(least_humid_row["Value"]), 1),
+            "room": least_humid_row["Room"],
+            "timestamp": least_humid_row["MessageDate"].strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    if worst_margin:
+        tightest_room = min(worst_margin, key=worst_margin.get)
+        stats["tightest_condensation_margin"] = {
+            "value": round(worst_margin[tightest_room], 1),
+            "room": tightest_room,
         }
     if "Current - Cumulative Amp.hours" in window_df.columns:
         series = window_df["Current - Cumulative Amp.hours"].dropna()

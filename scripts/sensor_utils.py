@@ -17,6 +17,57 @@ COLUMN_RE = re.compile(
 RISK_HIGH = 1.0   # margin below this: high risk (red)
 RISK_ELEVATED = 3.0  # margin below this: elevated risk (amber)
 
+# CIBSE Guide A recommended operative temperatures for UK dwellings, plus the
+# widely used 40-60% RH comfortable-humidity band. Used to mechanically score
+# thermal comfort per room so a downstream narrative process has a ready-made
+# fact rather than having to judge it itself.
+COMFORT_TEMP_BEDROOM_C = 18.0
+COMFORT_TEMP_LIVING_C = 21.0
+COMFORT_RH_LOW = 40.0
+COMFORT_RH_HIGH = 60.0
+NON_LIVING_ROOMS = {"Loft 1", "Loft 2", "Network", "Outside"}
+
+
+def comfort_target_temp(room):
+    return COMFORT_TEMP_BEDROOM_C if room.startswith("Bed") else COMFORT_TEMP_LIVING_C
+
+
+def humidity_deviation(avg_rh):
+    if avg_rh < COMFORT_RH_LOW:
+        return COMFORT_RH_LOW - avg_rh
+    if avg_rh > COMFORT_RH_HIGH:
+        return avg_rh - COMFORT_RH_HIGH
+    return 0.0
+
+
+def rank_thermal_comfort(avg_temp_by_room, avg_humidity_by_room, exclude=NON_LIVING_ROOMS):
+    """Score living-space rooms by deviation from CIBSE Guide A comfort targets.
+
+    Lower comfort_score = closer to the target temperature and the 40-60% RH
+    band. Returns a list sorted best-to-worst; excludes non-living-space
+    sensors (lofts, network cupboard, outside) since they aren't spaces
+    people occupy.
+    """
+    scored = []
+    for room, avg_temp in avg_temp_by_room.items():
+        if room in exclude:
+            continue
+        avg_rh = avg_humidity_by_room.get(room)
+        if avg_rh is None:
+            continue
+        target_temp = comfort_target_temp(room)
+        scored.append(
+            {
+                "room": room,
+                "avg_temperature": round(avg_temp, 1),
+                "target_temperature": target_temp,
+                "avg_humidity": round(avg_rh, 1),
+                "comfort_score": round(abs(avg_temp - target_temp) + humidity_deviation(avg_rh), 2),
+            }
+        )
+    scored.sort(key=lambda r: r["comfort_score"])
+    return scored
+
 
 def load_history_wide():
     """Return the full history as a wide DataFrame, one row per MessageDate."""
