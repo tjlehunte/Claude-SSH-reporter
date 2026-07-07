@@ -31,6 +31,7 @@ PROXY_URL = "https://monnit-plumber-api.onrender.com/data"
 DEFAULT_LOOKBACK_HOURS = 36
 REQUEST_TIMEOUT = 15
 PROXY_TIMEOUT = 60  # Render free tier can be slow to wake from sleep
+CHUNK_DAYS = 5  # the gateway errors on overly-large SensorDataMessages date ranges
 
 # Order of comma-separated fields Monnit returns for a humidity/temp combo sensor.
 METRIC_ORDER = ["Humidity", "Temperature", "Dewpoint", "gpkg", "Heat Index", "Wet Bulb"]
@@ -77,6 +78,18 @@ def parse_monnit_date(raw):
     return dt.replace(minute=floored_minute, second=0, microsecond=0)
 
 
+def date_chunks(start, end, chunk_days=CHUNK_DAYS):
+    """Split [start, end] into <=chunk_days spans (inclusive of a final short one)."""
+    step = timedelta(days=chunk_days)
+    chunks = []
+    cur = start
+    while cur < end:
+        nxt = min(cur + step, end)
+        chunks.append((cur, nxt))
+        cur = nxt
+    return chunks or [(start, end)]
+
+
 def fetch_gateway(since_utc):
     key_id = os.environ.get("MONNIT_API_KEY_ID")
     secret = os.environ.get("MONNIT_API_SECRET_KEY")
@@ -97,9 +110,7 @@ def fetch_gateway(since_utc):
     if not sensors:
         raise RuntimeError("gateway returned no sensors for NetworkID=6")
 
-    from_date = since_utc.strftime("%Y/%m/%d %H:%M:%S")
-    to_date = datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S")
-
+    now_utc = datetime.utcnow()
     per_timestamp = {}  # MessageDate string -> row dict
 
     for sensor in sensors:
@@ -110,39 +121,56 @@ def fetch_gateway(since_utc):
         if not (is_humidity or is_current):
             continue  # unrecognized sensor type, skip (matches R's keep() filtering)
 
-        resp = requests.get(
-            f"{GATEWAY_BASE}/SensorDataMessages",
-            params={"SensorID": sensor_id, "fromDate": from_date, "toDate": to_date},
-            headers=headers,
-            verify=False,
-            timeout=REQUEST_TIMEOUT,
-        )
-        resp.raise_for_status()
-        result = resp.json().get("Result") or []
-        if not result:
-            continue
+        for chunk_start, chunk_end in date_chunks(since_utc, now_utc):
+            resp = requests.get(
+                f"{GATEWAY_BASE}/SensorDataMessages",
+                params={
+                    "SensorID": sensor_id,
+                    "fromDate": chunk_start.strftime("%Y/%m/%d %H:%M:%S"),
+                    "toDate": chunk_end.strftime("%Y/%m/%d %H:%M:%S"),
+                },
+                headers=headers,
+                verify=False,
+                timeout=REQUEST_TIMEOUT,
+            )
+            resp.raise_for_status()
+            result = resp.json().get("Result") or []
+            if not isinstance(result, list):
+                # The gateway sometimes returns a plain error/status string in
+                # Result instead of a list (e.g. for an oversized date range) -
+                # skip this chunk rather than let it blow up the whole fetch.
+                print(
+                    f"[fetch] unexpected response for sensor {sensor_id} ({sensor_name}) "
+                    f"{chunk_start}..{chunk_end}: {result!r}",
+                    file=sys.stderr,
+                )
+                continue
+            if not result:
+                continue
 
-        for message in result:
-            ts = parse_monnit_date(message["MessageDate"])
-            ts_str = ts.strftime("%Y-%m-%d %H:%M:%S")
-            values = message.get("Data", "").split(",")
-            row = per_timestamp.setdefault(ts_str, {"MessageDate": ts_str})
+            for message in result:
+                if not isinstance(message, dict):
+                    continue
+                ts = parse_monnit_date(message["MessageDate"])
+                ts_str = ts.strftime("%Y-%m-%d %H:%M:%S")
+                values = message.get("Data", "").split(",")
+                row = per_timestamp.setdefault(ts_str, {"MessageDate": ts_str})
 
-            if is_humidity:
-                for metric, value in zip(METRIC_ORDER, values):
-                    col_name = (
-                        sensor_name
-                        if metric == "Humidity"
-                        else sensor_name.replace("Humidity - ", f"{metric} - ", 1)
-                    )
-                    parsed = safe_float(value)
-                    if parsed is not None:
-                        row[col_name] = parsed
-            elif is_current:
-                for col_name, value in zip(CURRENT_COLUMNS, values):
-                    parsed = safe_float(value)
-                    if parsed is not None:
-                        row[col_name] = parsed
+                if is_humidity:
+                    for metric, value in zip(METRIC_ORDER, values):
+                        col_name = (
+                            sensor_name
+                            if metric == "Humidity"
+                            else sensor_name.replace("Humidity - ", f"{metric} - ", 1)
+                        )
+                        parsed = safe_float(value)
+                        if parsed is not None:
+                            row[col_name] = parsed
+                elif is_current:
+                    for col_name, value in zip(CURRENT_COLUMNS, values):
+                        parsed = safe_float(value)
+                        if parsed is not None:
+                            row[col_name] = parsed
 
     return list(per_timestamp.values())
 
