@@ -7,6 +7,7 @@ worst-case (minimum) condensation-risk margin per room.
 """
 import base64
 import io
+import json
 from datetime import timedelta
 from pathlib import Path
 
@@ -116,6 +117,34 @@ def main():
 
     report_label = f"{start.strftime('%Y-%m-%d')}_to_{end.strftime('%Y-%m-%d')}"
 
+    # Compact machine-readable stats, meant for a separate lightweight process
+    # (e.g. a local scheduled Claude routine) to turn into narrative commentary
+    # without needing to re-read the full history file.
+    stats = {
+        "report_label": report_label,
+        "window_start": start.strftime("%Y-%m-%d %H:%M:%S"),
+        "window_end": end.strftime("%Y-%m-%d %H:%M:%S"),
+        "rooms": rooms,
+        "avg_humidity_by_room": {k: round(v, 1) for k, v in avg_humidity.items()},
+        "worst_condensation_margin_by_room": {k: round(v, 1) for k, v in worst_margin.items()},
+        "insights": insights,
+    }
+    if not temp_series.empty:
+        stats["peak_temperature"] = {
+            "value": round(float(hottest_row["Value"]), 1),
+            "room": hottest_row["Room"],
+            "timestamp": hottest_row["MessageDate"].strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        stats["lowest_temperature"] = {
+            "value": round(float(coldest_row["Value"]), 1),
+            "room": coldest_row["Room"],
+            "timestamp": coldest_row["MessageDate"].strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    if "Current - Cumulative Amp.hours" in window_df.columns:
+        series = window_df["Current - Cumulative Amp.hours"].dropna()
+        if len(series) >= 2:
+            stats["amp_hours_used"] = round(float(series.iloc[-1] - series.iloc[0]), 2)
+
     html = f"""<!doctype html>
 <html><head><meta charset="utf-8">
 <title>Weekly sensor report - {report_label}</title>
@@ -125,12 +154,16 @@ h1 {{ margin-bottom: 0.2rem; }}
 .subtitle {{ color: #666; margin-top: 0; }}
 img {{ max-width: 100%; height: auto; display: block; margin: 1.5rem 0; }}
 ul {{ line-height: 1.6; }}
+#ai-insights {{ background: #f4f6fb; border-left: 3px solid #4a7ab5; padding: 0.1rem 1rem; border-radius: 4px; }}
+#ai-insights .ai-label {{ font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #4a7ab5; font-weight: 600; }}
 </style></head>
 <body>
 <h1>Weekly sensor report</h1>
 <p class="subtitle">Window: {start.strftime('%Y-%m-%d %H:%M')} &ndash; {end.strftime('%Y-%m-%d %H:%M')} (UTC)</p>
 <h2>Summary</h2>
 <ul>{''.join(f'<li>{line}</li>' for line in insights)}</ul>
+<h2>AI insights</h2>
+<div id="ai-insights"><!-- AI_INSIGHTS_PLACEHOLDER --><p><em>Not yet generated.</em></p></div>
 <h2>Temperature</h2>
 <img src="data:image/png;base64,{temp_chart}" alt="Daily mean temperature by room">
 <h2>Humidity</h2>
@@ -145,7 +178,12 @@ ul {{ line-height: 1.6; }}
     dated_path = WEEKLY_DIR / f"{report_label}.html"
     dated_path.write_text(html, encoding="utf-8")
     LATEST_FILE.write_text(html, encoding="utf-8")
-    print(f"[weekly] wrote {dated_path} and {LATEST_FILE}")
+
+    stats_path = WEEKLY_DIR / f"{report_label}_stats.json"
+    stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    (WEEKLY_DIR / "latest_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
+
+    print(f"[weekly] wrote {dated_path}, {LATEST_FILE}, and {stats_path}")
 
 
 if __name__ == "__main__":
