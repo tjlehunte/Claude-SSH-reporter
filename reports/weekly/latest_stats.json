@@ -229,6 +229,26 @@
       "comfort_score": 6.56
     }
   ],
+  "sharpest_temperature_change": {
+    "room": "Dining",
+    "change": 3.3,
+    "direction": "rise",
+    "from_time": "2026-07-02 17:30:00",
+    "from_value": 24.0,
+    "to_time": "2026-07-02 18:00:00",
+    "to_value": 27.4,
+    "window_minutes": 30
+  },
+  "sharpest_humidity_change": {
+    "room": "Dining",
+    "change": -7.5,
+    "direction": "drop",
+    "from_time": "2026-07-02 17:30:00",
+    "from_value": 50.7,
+    "to_time": "2026-07-02 18:00:00",
+    "to_value": 43.3,
+    "window_minutes": 30
+  },
   "insights": [
     "Peak temperature this week: 34.1\u00b0C in Loft 1 on 2026-06-30 15:10.",
     "Lowest temperature this week: 14.1\u00b0C in Outside on 2026-07-03 03:10.",
