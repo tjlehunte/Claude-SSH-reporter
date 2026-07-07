@@ -229,26 +229,138 @@
       "comfort_score": 6.56
     }
   ],
-  "sharpest_temperature_change": {
-    "room": "Dining",
-    "change": 3.3,
-    "direction": "rise",
-    "from_time": "2026-07-02 17:30:00",
-    "from_value": 24.0,
-    "to_time": "2026-07-02 18:00:00",
-    "to_value": 27.4,
-    "window_minutes": 30
-  },
-  "sharpest_humidity_change": {
-    "room": "Dining",
-    "change": -7.5,
-    "direction": "drop",
-    "from_time": "2026-07-02 17:30:00",
-    "from_value": 50.7,
-    "to_time": "2026-07-02 18:00:00",
-    "to_value": 43.3,
-    "window_minutes": 30
-  },
+  "temperature_swing_events": [
+    {
+      "room": "Dining",
+      "change": 3.3,
+      "direction": "rise",
+      "from_time": "2026-07-02 17:30:00",
+      "from_value": 24.0,
+      "to_time": "2026-07-02 18:00:00",
+      "to_value": 27.4
+    },
+    {
+      "room": "Kitchen",
+      "change": -1.8,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 26.2,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 24.4
+    },
+    {
+      "room": "Bed 1",
+      "change": -1.5,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 25.4,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 23.9
+    },
+    {
+      "room": "Hall",
+      "change": -1.4,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 25.0,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 23.6
+    },
+    {
+      "room": "Study",
+      "change": -1.4,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 24.9,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 23.4
+    },
+    {
+      "room": "Bed 3",
+      "change": -1.3,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 25.9,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 24.7
+    },
+    {
+      "room": "Landing",
+      "change": -1.3,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:30:00",
+      "from_value": 25.4,
+      "to_time": "2026-06-30 09:00:00",
+      "to_value": 24.1
+    },
+    {
+      "room": "Toilet down",
+      "change": -1.2,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:10:00",
+      "from_value": 25.7,
+      "to_time": "2026-06-30 08:40:00",
+      "to_value": 24.5
+    },
+    {
+      "room": "Lounge",
+      "change": -1.1,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 24.8,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 23.6
+    },
+    {
+      "room": "Bed 3",
+      "change": -1.0,
+      "direction": "drop",
+      "from_time": "2026-06-30 20:40:00",
+      "from_value": 23.9,
+      "to_time": "2026-06-30 21:10:00",
+      "to_value": 22.9
+    },
+    {
+      "room": "Dining",
+      "change": -1.0,
+      "direction": "drop",
+      "from_time": "2026-06-30 08:20:00",
+      "from_value": 25.5,
+      "to_time": "2026-06-30 08:50:00",
+      "to_value": 24.5
+    }
+  ],
+  "humidity_swing_events": [
+    {
+      "room": "Dining",
+      "change": -7.5,
+      "direction": "drop",
+      "from_time": "2026-07-02 17:30:00",
+      "from_value": 50.7,
+      "to_time": "2026-07-02 18:00:00",
+      "to_value": 43.3
+    }
+  ],
+  "collective_temperature_events": [
+    {
+      "time": "2026-06-30 08:00:00",
+      "direction": "drop",
+      "rooms": [
+        "Bed 1",
+        "Bed 3",
+        "Dining",
+        "Hall",
+        "Kitchen",
+        "Lounge",
+        "Study",
+        "Toilet down"
+      ],
+      "room_count": 8,
+      "avg_change": -1.3,
+      "largest_change": -1.8
+    }
+  ],
+  "collective_humidity_events": [],
   "insights": [
     "Peak temperature this week: 34.1\u00b0C in Loft 1 on 2026-06-30 15:10.",
     "Lowest temperature this week: 14.1\u00b0C in Outside on 2026-07-03 03:10.",
