@@ -189,9 +189,15 @@ def main():
         most_humid_row = humidity_series_indoor.loc[humidity_series_indoor["Value"].idxmax()]
         least_humid_row = humidity_series_indoor.loc[humidity_series_indoor["Value"].idxmin()]
 
-    if avg_humidity:
-        most_humid = max(avg_humidity, key=avg_humidity.get)
-        insights.append(f"Most humid room on average: {most_humid} ({avg_humidity[most_humid]:.0f}% RH).")
+    # Same Network/Outside exclusion as the peak/lowest humidity figures below
+    # - avg_humidity itself stays unrestricted for the comfort ranking and
+    # the full per-room table in stats JSON.
+    avg_humidity_indoor = {k: v for k, v in avg_humidity.items() if k not in HUMIDITY_HIGHLIGHT_EXCLUDE}
+    if avg_humidity_indoor:
+        most_humid = max(avg_humidity_indoor, key=avg_humidity_indoor.get)
+        insights.append(
+            f"Most humid room on average: {most_humid} ({avg_humidity_indoor[most_humid]:.0f}% RH)."
+        )
 
     # Outside's condensation margin is always going to differ from the indoor
     # rooms in a way that isn't a useful "worst room" comment - excluded from
