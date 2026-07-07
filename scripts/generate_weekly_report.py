@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Generate a self-contained weekly HTML report from data/history.jsonl.
 
-Collates the most recent 7 days present in the history file: daily mean
-temperature per room, weekly average humidity per room, and the weekly
-worst-case (minimum) condensation-risk margin per room.
+Reports on the most recently *completed* Monday-Sunday calendar week
+(relative to the latest data on hand, not wall-clock "now"), not a rolling
+7-day-from-now window: daily mean temperature per room, weekly average
+humidity per room, and the weekly worst-case (minimum) condensation-risk
+margin per room.
 """
 import base64
 import io
@@ -72,6 +74,12 @@ def plot_daily_mean_series(long_df, rooms, metric, ylabel, title):
     return fig
 
 
+def most_recent_complete_week(latest_ts):
+    """Monday 00:00 .. next Monday 00:00 (exclusive) of the week before latest_ts's week."""
+    this_monday = (latest_ts - timedelta(days=latest_ts.weekday())).normalize()
+    return this_monday - timedelta(days=7), this_monday
+
+
 def plot_bar(values_by_room, rooms, title, ylabel, color_fn=None):
     values = [values_by_room.get(room, float("nan")) for room in rooms]
     colors = [color_fn(v) if color_fn and v == v else "#4a7ab5" for v in values]
@@ -89,9 +97,22 @@ def main():
         print("[weekly] no history yet, skipping report generation")
         return
 
-    end = df_wide["MessageDate"].max()
-    start = end - timedelta(days=WINDOW_DAYS)
-    window_df = df_wide[df_wide["MessageDate"] >= start]
+    latest_ts = df_wide["MessageDate"].max()
+    week_start, week_end = most_recent_complete_week(latest_ts)
+    window_df = df_wide[(df_wide["MessageDate"] >= week_start) & (df_wide["MessageDate"] < week_end)]
+
+    if window_df.empty:
+        # No fully-completed Mon-Sun week yet (pipeline just started) - fall
+        # back to whatever partial data exists in the current in-progress week.
+        print("[weekly] no completed calendar week yet; reporting partial current week instead")
+        week_start, week_end = week_end, week_end + timedelta(days=WINDOW_DAYS)
+        window_df = df_wide[(df_wide["MessageDate"] >= week_start) & (df_wide["MessageDate"] < week_end)]
+
+    # Use the actual first/last readings present (e.g. Monday 00:10, Sunday
+    # 23:50) for display and stats, while week_start/week_end above stay as
+    # the exact calendar boundaries used for filtering.
+    start = window_df["MessageDate"].min() if not window_df.empty else week_start
+    end = window_df["MessageDate"].max() if not window_df.empty else week_end
     long_df = to_long(window_df)
     rooms = room_order(long_df)
 
