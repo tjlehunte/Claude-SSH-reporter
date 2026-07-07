@@ -26,6 +26,7 @@ from sensor_utils import (
     room_order,
     to_long,
     CONDENSATION_HIGHLIGHT_EXCLUDE,
+    HUMIDITY_HIGHLIGHT_EXCLUDE,
     PEAK_TEMPERATURE_EXCLUDE,
 )
 
@@ -59,6 +60,7 @@ def plot_temperature(long_df, rooms):
         ax.plot(series["MessageDate"], series["Value"], label=room, linewidth=1.3)
     ax.set_title("Temperature by room")
     ax.set_ylabel("°C")
+    ax.margins(x=0)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), fontsize=8, ncol=1)
     fig.autofmt_xdate()
@@ -98,12 +100,13 @@ def build_insights(window_df, latest_temp, latest_humidity, latest_margin, rooms
             f"Warmest room: {hottest} ({indoor_temp[hottest]:.1f}°C); "
             f"coolest room: {coldest} ({indoor_temp[coldest]:.1f}°C)."
         )
-    if latest_humidity:
-        most_humid = max(latest_humidity, key=latest_humidity.get)
-        least_humid = min(latest_humidity, key=latest_humidity.get)
+    indoor_humidity = {r: v for r, v in latest_humidity.items() if r not in HUMIDITY_HIGHLIGHT_EXCLUDE}
+    if indoor_humidity:
+        most_humid = max(indoor_humidity, key=indoor_humidity.get)
+        least_humid = min(indoor_humidity, key=indoor_humidity.get)
         lines.append(
-            f"Most humid room: {most_humid} ({latest_humidity[most_humid]:.0f}% RH); "
-            f"least humid room: {least_humid} ({latest_humidity[least_humid]:.0f}% RH)."
+            f"Most humid room: {most_humid} ({indoor_humidity[most_humid]:.0f}% RH); "
+            f"least humid room: {least_humid} ({indoor_humidity[least_humid]:.0f}% RH)."
         )
     if latest_margin:
         at_risk = {r: m for r, m in latest_margin.items() if r not in CONDENSATION_HIGHLIGHT_EXCLUDE and m < 3.0}

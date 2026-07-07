@@ -30,6 +30,7 @@ from sensor_utils import (
     room_order,
     to_long,
     CONDENSATION_HIGHLIGHT_EXCLUDE,
+    HUMIDITY_HIGHLIGHT_EXCLUDE,
     PEAK_TEMPERATURE_EXCLUDE,
     SHARP_CHANGE_WINDOW_MINUTES,
     SHARP_HUMIDITY_THRESHOLD_PCT,
@@ -61,6 +62,7 @@ def plot_raw_series(long_df, rooms, metric, ylabel, title):
         ax.plot(series["MessageDate"], series["Value"], label=room, linewidth=0.8, alpha=0.85)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
+    ax.margins(x=0)
     ax.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 12]))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d %Hh"))
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), fontsize=8)
@@ -81,6 +83,7 @@ def plot_daily_mean_series(long_df, rooms, metric, ylabel, title):
         ax.plot(series["Day"], series["Value"], marker="o", label=room, linewidth=1.3)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
+    ax.margins(x=0.02)
     ax.xaxis.set_major_locator(mdates.DayLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), fontsize=8)
@@ -178,9 +181,13 @@ def main():
         )
 
     humidity_series = long_df[long_df["Metric"] == "Humidity"]
-    if not humidity_series.empty:
-        most_humid_row = humidity_series.loc[humidity_series["Value"].idxmax()]
-        least_humid_row = humidity_series.loc[humidity_series["Value"].idxmin()]
+    # Network cupboard runs its own equipment-driven humidity profile, which
+    # makes it an uninformative peak/lowest answer - excluded from this
+    # figure only; it stays fully visible in the charts.
+    humidity_series_indoor = humidity_series[~humidity_series["Room"].isin(HUMIDITY_HIGHLIGHT_EXCLUDE)]
+    if not humidity_series_indoor.empty:
+        most_humid_row = humidity_series_indoor.loc[humidity_series_indoor["Value"].idxmax()]
+        least_humid_row = humidity_series_indoor.loc[humidity_series_indoor["Value"].idxmin()]
 
     if avg_humidity:
         most_humid = max(avg_humidity, key=avg_humidity.get)
@@ -275,7 +282,7 @@ def main():
             "room": coldest_row["Room"],
             "timestamp": coldest_row["MessageDate"].strftime("%Y-%m-%d %H:%M:%S"),
         }
-    if not humidity_series.empty:
+    if not humidity_series_indoor.empty:
         stats["peak_humidity"] = {
             "value": round(float(most_humid_row["Value"]), 1),
             "room": most_humid_row["Room"],
