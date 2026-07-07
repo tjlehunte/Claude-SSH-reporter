@@ -74,6 +74,8 @@
     "Toilet down": 8.9,
     "Toilet up": 7.1
   },
+  "mean_temperature_c": 23.7,
+  "mean_humidity_pct": 53.4,
   "daily_mean_temperature_indoor": [
     {
       "date": "2026-06-29",
@@ -364,8 +366,10 @@
   "insights": [
     "Peak temperature this week: 29.3\u00b0C in Bed 3 on 2026-06-29 00:00.",
     "Lowest temperature this week: 20.8\u00b0C in Bed 3 on 2026-07-01 08:20.",
-    "Most humid room on average: Loft 2 (55% RH).",
-    "Tightest condensation-risk margin this week: 4.4\u00b0C in Loft 2.",
+    "Peak humidity this week: 68.7% in Bed 3 on 2026-07-01 08:20.",
+    "Lowest humidity this week: 42.1% in Toilet down on 2026-06-30 13:20.",
+    "Mean temperature in the SSH this week was 23.7\u00b0C.",
+    "Mean humidity in the SSH this week was 53.4%.",
     "Amp-hours consumed this week: 502.76 Ah."
   ],
   "best_comfort_room": {
@@ -393,14 +397,14 @@
     "timestamp": "2026-07-01 08:20:00"
   },
   "peak_humidity": {
-    "value": 75.7,
-    "room": "Loft 2",
-    "timestamp": "2026-07-05 07:10:00"
+    "value": 68.7,
+    "room": "Bed 3",
+    "timestamp": "2026-07-01 08:20:00"
   },
   "lowest_humidity": {
-    "value": 32.3,
-    "room": "Loft 1",
-    "timestamp": "2026-06-30 15:30:00"
+    "value": 42.1,
+    "room": "Toilet down",
+    "timestamp": "2026-06-30 13:20:00"
   },
   "tightest_condensation_margin": {
     "value": 4.4,
