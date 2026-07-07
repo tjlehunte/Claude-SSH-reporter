@@ -47,7 +47,7 @@ def plot_raw_series(long_df, rooms, metric, ylabel, title):
         ax.plot(series["MessageDate"], series["Value"], label=room, linewidth=0.8, alpha=0.85)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
-    ax.xaxis.set_major_locator(mdates.HourLocator(interval=12))
+    ax.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 12]))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d %Hh"))
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), fontsize=8)
     fig.autofmt_xdate()
