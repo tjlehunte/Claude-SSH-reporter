@@ -30,6 +30,7 @@ from sensor_utils import (
     room_order,
     to_long,
     CONDENSATION_HIGHLIGHT_EXCLUDE,
+    HOUSE_INTERIOR_EXCLUDE,
     HUMIDITY_HIGHLIGHT_EXCLUDE,
     PEAK_TEMPERATURE_EXCLUDE,
     SHARP_CHANGE_WINDOW_MINUTES,
@@ -196,13 +197,19 @@ def main():
             f"on {least_humid_row['MessageDate'].strftime('%Y-%m-%d %H:%M')}."
         )
 
-    # Whole-house means include every sensor (Outside, lofts, network cupboard)
-    # - unlike the max/min figures above, an overall average isn't skewed by
-    # a single room dominating, so there's no reason to exclude them here.
-    if not temp_series.empty:
-        insights.append(f"Mean temperature in the SSH this week was {temp_series['Value'].mean():.1f}°C.")
-    if not humidity_series.empty:
-        insights.append(f"Mean humidity in the SSH this week was {humidity_series['Value'].mean():.1f}%.")
+    # Whole-house means cover the house interior only - lofts and outside
+    # aren't part of the living space, so they're excluded here even though
+    # this isn't a max/min figure. The network cupboard stays included.
+    temp_series_house = temp_series[~temp_series["Room"].isin(HOUSE_INTERIOR_EXCLUDE)]
+    humidity_series_house = humidity_series[~humidity_series["Room"].isin(HOUSE_INTERIOR_EXCLUDE)]
+    if not temp_series_house.empty:
+        insights.append(
+            f"Mean temperature in the SSH this week was {temp_series_house['Value'].mean():.1f}°C."
+        )
+    if not humidity_series_house.empty:
+        insights.append(
+            f"Mean humidity in the SSH this week was {humidity_series_house['Value'].mean():.1f}%."
+        )
 
     # Outside's condensation margin is always going to differ from the indoor
     # rooms in a way that isn't a useful "worst room" comment - excluded from
@@ -216,17 +223,17 @@ def main():
         if len(series) >= 2:
             insights.append(f"Amp-hours consumed this week: {series.iloc[-1] - series.iloc[0]:.2f} Ah.")
 
-    # Daily whole-house (indoor) mean, for spotting a pattern across the week
+    # Daily house-interior mean, for spotting a pattern across the week
     # cheaply from a handful of numbers instead of re-reading raw history or
-    # visually inspecting the chart images.
-    indoor_rooms = [r for r in rooms if r != "Outside"]
+    # visually inspecting the chart images. Same room scope as the whole-house
+    # means above (excludes lofts/outside, keeps the network cupboard).
     daily_indoor_temp = (
-        temp_series[temp_series["Room"].isin(indoor_rooms)]
+        temp_series_house
         .assign(Day=lambda d: d["MessageDate"].dt.strftime("%Y-%m-%d"))
         .groupby("Day")["Value"].mean()
     )
     daily_indoor_humidity = (
-        humidity_series[humidity_series["Room"].isin(indoor_rooms)]
+        humidity_series_house
         .assign(Day=lambda d: d["MessageDate"].dt.strftime("%Y-%m-%d"))
         .groupby("Day")["Value"].mean()
     )
@@ -258,8 +265,12 @@ def main():
         "avg_temperature_by_room": {k: round(v, 1) for k, v in avg_temperature.items()},
         "avg_humidity_by_room": {k: round(v, 1) for k, v in avg_humidity.items()},
         "worst_condensation_margin_by_room": {k: round(v, 1) for k, v in worst_margin.items()},
-        "mean_temperature_c": round(float(temp_series["Value"].mean()), 1) if not temp_series.empty else None,
-        "mean_humidity_pct": round(float(humidity_series["Value"].mean()), 1) if not humidity_series.empty else None,
+        "mean_temperature_c": (
+            round(float(temp_series_house["Value"].mean()), 1) if not temp_series_house.empty else None
+        ),
+        "mean_humidity_pct": (
+            round(float(humidity_series_house["Value"].mean()), 1) if not humidity_series_house.empty else None
+        ),
         "daily_mean_temperature_indoor": [
             {"date": d, "value": round(v, 1)} for d, v in daily_indoor_temp.items()
         ],

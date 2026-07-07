@@ -174,8 +174,14 @@ CONDENSATION_HIGHLIGHT_EXCLUDE = {"Outside"}
 
 # Same reasoning as PEAK_TEMPERATURE_EXCLUDE, applied to humidity max/min -
 # lofts, the network cupboard, and outside are excluded from peak/lowest
-# humidity figures (they stay eligible for, and are included in, averages).
+# humidity figures.
 HUMIDITY_HIGHLIGHT_EXCLUDE = NON_LIVING_ROOMS
+
+# Rooms excluded from "house interior" whole-house averages (e.g. the
+# overall mean temperature/humidity for the week) - lofts and outside aren't
+# part of the house's living space, unlike the network cupboard which stays
+# included here.
+HOUSE_INTERIOR_EXCLUDE = {"Loft 1", "Loft 2", "Outside"}
 
 
 def room_category(room):
