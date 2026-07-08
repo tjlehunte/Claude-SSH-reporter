@@ -120,7 +120,7 @@ def main():
     imported = float(total_import(window_df).sum())
     exported = float(total_export(window_df).sum())
     sc = self_consumption_pct(generation, totals["PV to Home"], totals["PV to Battery"])
-    ss = self_sufficiency_pct(consumption, totals["PV to Home"], totals["Battery to Home"])
+    ss = self_sufficiency_pct(consumption, imported)
 
     raw_flows_chart = fig_to_base64(plot_raw_flows(window_df))
     daily_totals_fig, daily_totals_df = plot_daily_totals(window_df)
@@ -140,7 +140,7 @@ def main():
     if sc is not None:
         insights.append(f"Self-consumption: {sc:.0f}% of generated solar was used on-site rather than exported.")
     if ss is not None:
-        insights.append(f"Self-sufficiency: {ss:.0f}% of home consumption was met without drawing from the grid.")
+        insights.append(f"Self-sufficiency: {ss:.2f}% of home consumption was met without drawing from the grid.")
     if not daily_generation.empty:
         best_day = daily_generation.idxmax()
         worst_day = daily_generation.idxmin()
@@ -163,7 +163,7 @@ def main():
         "total_import_kwh": round(imported, 2),
         "total_export_kwh": round(exported, 2),
         "self_consumption_pct": round(sc, 1) if sc is not None else None,
-        "self_sufficiency_pct": round(ss, 1) if ss is not None else None,
+        "self_sufficiency_pct": round(ss, 2) if ss is not None else None,
         "daily_generation_kwh": [
             {"date": d.strftime("%Y-%m-%d"), "value": round(v, 2)} for d, v in daily_generation.items()
         ],

@@ -90,9 +90,9 @@ def build_insights(df, totals):
     sc = self_consumption_pct(generation, totals["PV to Home"], totals["PV to Battery"])
     if sc is not None:
         lines.append(f"Self-consumption: {sc:.0f}% of generated solar was used on-site rather than exported.")
-    ss = self_sufficiency_pct(consumption, totals["PV to Home"], totals["Battery to Home"])
+    ss = self_sufficiency_pct(consumption, imported)
     if ss is not None:
-        lines.append(f"Self-sufficiency: {ss:.0f}% of home consumption was met without drawing from the grid.")
+        lines.append(f"Self-sufficiency: {ss:.2f}% of home consumption was met without drawing from the grid.")
     return lines
 
 

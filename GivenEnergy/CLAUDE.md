@@ -24,6 +24,10 @@ Monnit needed room-exclusion constants because it has a fleet of *interchangeabl
 
 `CHUNK_DAYS = 7` in `fetch_and_append.py` applies to every fetch, not just backfill mode — the user believes the API can handle large date ranges in a single call, but chunking anyway costs nothing and matches Monnit's defensive pattern (skip a malformed chunk's response rather than let it crash the whole fetch).
 
+## Self-sufficiency counts grid-to-battery draw, not just grid-to-home
+
+`energy_utils.self_sufficiency_pct(consumption_kwh, grid_drawn_kwh)` takes `grid_drawn_kwh` as `total_import()` (Grid to Home + Grid to Battery), not just Grid to Home. This was a deliberate correction: a day can show `Grid to Home == 0` (mathematically 100% self-sufficient by a narrower definition) while still importing grid energy to charge the battery — that energy isn't really "self-sufficient" just because it's discharged to the home later rather than drawn directly. Because of this, the metric can in principle go negative (heavy grid-charging on a low-consumption day) — that's not clamped to 0, since a negative value is a real signal (grid draw exceeded same-window consumption), not an error.
+
 ## No fallback data source
 
 Unlike Monnit (which falls back to a Render proxy), there's no secondary source for GivenEnergy data — if the API is unreachable or the token (repo secret `GIVENERGY_BEARER`, read inside the script as `GIVENERGY_BEARER_TOKEN`) is missing/expired, `fetch_and_append.py` raises rather than silently succeeding with stale or partial data.

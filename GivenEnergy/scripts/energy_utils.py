@@ -77,11 +77,15 @@ def self_consumption_pct(generation_kwh, pv_to_home_kwh, pv_to_battery_kwh):
     return 100.0 * (pv_to_home_kwh + pv_to_battery_kwh) / generation_kwh
 
 
-def self_sufficiency_pct(consumption_kwh, pv_to_home_kwh, battery_to_home_kwh):
-    """Share of home consumption not drawn from the grid."""
+def self_sufficiency_pct(consumption_kwh, grid_drawn_kwh):
+    """Share of home consumption not funded by grid draw. Counts grid energy
+    used to charge the battery as grid-drawn too, not just grid-to-home
+    directly - charging the battery from the grid isn't self-sufficient just
+    because the battery discharges to the home later. `grid_drawn_kwh` is
+    expected to be total_import() (Grid to Home + Grid to Battery)."""
     if consumption_kwh <= 0:
         return None
-    return 100.0 * (pv_to_home_kwh + battery_to_home_kwh) / consumption_kwh
+    return 100.0 * (consumption_kwh - grid_drawn_kwh) / consumption_kwh
 
 
 def flow_totals(df):
