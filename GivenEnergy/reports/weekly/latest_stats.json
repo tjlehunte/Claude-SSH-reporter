@@ -1,7 +1,7 @@
 {
   "report_label": "2026-06-29_to_2026-07-05",
   "window_start": "2026-06-29 00:00:00",
-  "window_end": "2026-07-05 23:30:00",
+  "window_end": "2026-07-06 00:00:00",
   "flow_totals_kwh": {
     "PV to Home": 28.6,
     "PV to Battery": 18.1,
@@ -16,7 +16,7 @@
   "total_import_kwh": 3.4,
   "total_export_kwh": 67.2,
   "self_consumption_pct": 41.0,
-  "self_sufficiency_pct": 99.0,
+  "self_sufficiency_pct": 93.19,
   "daily_generation_kwh": [
     {
       "date": "2026-06-29",
@@ -52,7 +52,7 @@
     "Total home consumption this week: 49.9 kWh.",
     "Imported from grid: 3.4 kWh; exported to grid: 67.2 kWh.",
     "Self-consumption: 41% of generated solar was used on-site rather than exported.",
-    "Self-sufficiency: 99% of home consumption was met without drawing from the grid.",
+    "Self-sufficiency: 93.19% of home consumption was met without drawing from the grid.",
     "Best generation day: 2026-07-03 (23.6 kWh); lowest: 2026-07-04 (10.8 kWh)."
   ],
   "best_generation_day": {
