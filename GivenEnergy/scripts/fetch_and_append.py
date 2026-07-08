@@ -28,11 +28,12 @@ ENERGY_FLOWS_PATH = f"v1/inverter/{INVERTER_SERIAL}/energy-flows"
 REQUEST_TIMEOUT = 30
 CHUNK_DAYS = 7  # cheap insurance against oversized-range errors, even though the API may tolerate large ranges
 
-# The API returns each interval's `data` as a positional array of 7 values,
-# not named keys - inferred from the source R script, which manually renames
-# them in this exact order rather than trusting JSON keys. If GivenEnergy
-# ever changes this ordering, every downstream stat silently mislabels itself,
-# so this list is the single source of truth other scripts import from.
+# The API returns each interval's `data` as an object keyed by string indices
+# ("0".."6"), not named flow keys - confirmed against a real response, and
+# consistent with the source R script, which manually renames them in this
+# exact order rather than trusting JSON keys. If GivenEnergy ever changes
+# this ordering, every downstream stat silently mislabels itself, so this
+# list is the single source of truth other scripts import from.
 FLOW_NAMES = [
     "PV to Home",
     "PV to Battery",
@@ -106,7 +107,13 @@ def fetch_chunk(bearer_token, start_date, end_date):
     )
     resp.raise_for_status()
     payload = resp.json()
-    intervals = payload.get("data") if isinstance(payload, dict) else None
+    # The API wraps `data` as an object keyed by string indices ("0", "1", ...)
+    # rather than a JSON array, both at the top level and for each interval's
+    # own `data` payload - confirmed against a real response, not just
+    # inferred from the R script. dict.values() preserves insertion order
+    # (guaranteed since Python 3.7), which matches the numeric key order here.
+    raw_intervals = payload.get("data") if isinstance(payload, dict) else None
+    intervals = list(raw_intervals.values()) if isinstance(raw_intervals, dict) else raw_intervals
     if not isinstance(intervals, list):
         print(
             f"[fetch] unexpected response shape for {start_date}..{end_date}: {payload!r}",
@@ -116,7 +123,7 @@ def fetch_chunk(bearer_token, start_date, end_date):
 
     rows = []
     for interval in intervals:
-        if not isinstance(interval, dict) or "start" not in interval or "end" not in interval:
+        if not isinstance(interval, dict) or "start_time" not in interval or "end_time" not in interval:
             print(f"[fetch] skipping malformed interval in {start_date}..{end_date}: {interval!r}", file=sys.stderr)
             continue
         raw_values = interval.get("data")
@@ -124,7 +131,7 @@ def fetch_chunk(bearer_token, start_date, end_date):
         if not isinstance(values, list) or len(values) != len(FLOW_NAMES):
             print(f"[fetch] skipping interval with unexpected data shape: {interval!r}", file=sys.stderr)
             continue
-        row = {"start": interval["start"], "end": interval["end"]}
+        row = {"start": interval["start_time"], "end": interval["end_time"]}
         row.update(dict(zip(FLOW_NAMES, values)))
         rows.append(row)
     return rows

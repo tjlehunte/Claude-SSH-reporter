@@ -8,7 +8,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY_FILE = ROOT / "data" / "history.jsonl"
 
-# The API returns these as a positional array, not named keys (see
+# The API returns these keyed by string index ("0".."6"), not named keys (see
 # fetch_and_append.py's FLOW_NAMES comment) - this is the same order used
 # throughout the pipeline, from fetch to charts to stats.json.
 FLOW_NAMES = [

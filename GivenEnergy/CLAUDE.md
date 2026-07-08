@@ -4,15 +4,17 @@ Operational notes specific to the GivenEnergy pipeline — not a description of 
 
 ## Timestamps are local time, not UTC
 
-The API's `start`/`end` fields are naive **Europe/London local time** (confirmed against a real response — values line up with BST/GMT wall-clock, not UTC). This is deliberate throughout the pipeline:
+The API's `start_time`/`end_time` fields (remapped to `start`/`end` in our own JSONL rows) are naive **Europe/London local time** (confirmed against a real response — values line up with BST/GMT wall-clock, not UTC). This is deliberate throughout the pipeline:
 
 - `fetch_and_append.py` builds its `start_time`/`end_time` request dates from the local calendar, not UTC, so requested windows actually align with what the API returns.
 - `energy_utils.most_recent_complete_day`/`most_recent_complete_week` do pure calendar arithmetic on whatever timestamp they're given — they don't know or care that it's local time rather than UTC (unlike Monnit's equivalent functions, which operate on UTC). Don't naively copy Monnit's "(UTC)" label into this pipeline's report text — it's already correctly labeled "(local time)" instead.
 - On the two clock-change days per year, the half-hour grid will have 46 or 50 rows instead of the usual 48. This is expected and does not need special handling — sums and charts are unaffected either way.
 
-## Flow ordering is positional, not named (`scripts/fetch_and_append.py`)
+## Response shape: objects keyed by string index, not arrays (`scripts/fetch_and_append.py`)
 
-The API's `data` payload per interval is an array of 7 values with no self-describing keys (inferred from the source R script, which manually renames them positionally rather than trusting JSON key names). `FLOW_NAMES` in `fetch_and_append.py` is the single source of truth for that order — every other script imports it from there (via `energy_utils.py`) rather than re-declaring it. If GivenEnergy ever changes the API to return named keys, or reorders the array, every downstream number silently mislabels itself with no error — this is the single most fragile assumption in the pipeline.
+Confirmed against a real response: both the top-level `data` payload (the list of intervals) and each interval's own `data` payload (the 7 flow values) are JSON *objects* keyed by string indices (`"0"`, `"1"`, ... `"6"`), not JSON arrays — `fetch_chunk()` unwraps both via `.values()` (relying on Python 3.7+ dict insertion-order preservation matching the numeric key order). Each interval's timestamp keys are `start_time`/`end_time`, not `start`/`end` (those get remapped to `start`/`end` when building our own JSONL rows).
+
+The 7 values themselves have no self-describing flow names — `FLOW_NAMES` in `fetch_and_append.py` is the single source of truth for that positional order (index 0 = PV to Home ... 6 = Battery to Grid), verified against real data (nonzero overnight battery discharge at index 5, nonzero PV from sunrise at index 0). Every other script imports `FLOW_NAMES` from there (via `energy_utils.py`) rather than re-declaring it. If GivenEnergy ever changes the API to return self-describing keys, or reorders the values, every downstream number silently mislabels itself with no error — this is the single most fragile assumption in the pipeline.
 
 ## No highlight/exclusion constants (unlike Monnit's `sensor_utils.py`)
 
