@@ -32,7 +32,7 @@ jobs:
 
       - name: Fetch and append new energy-flow readings
         env:
-          GIVENERGY_BEARER_TOKEN: ${{ secrets.GIVENERGY_BEARER_TOKEN }}
+          GIVENERGY_BEARER_TOKEN: ${{ secrets.GIVENERGY_BEARER }}
           GIVENERGY_BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
         run: python GivenEnergy/scripts/fetch_and_append.py
 

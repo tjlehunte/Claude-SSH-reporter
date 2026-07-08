@@ -12,7 +12,7 @@ Dated snapshots accumulate in `reports/daily/` and `reports/weekly/` as a perman
 
 ## Data source
 
-Fetches directly from the GivenEnergy Cloud API (`POST /v1/inverter/{serial}/energy-flows`, bearer token in the `GIVENERGY_BEARER_TOKEN` repo secret). See [`scripts/fetch_and_append.py`](scripts/fetch_and_append.py). No fallback data source exists — if the API is unreachable, the fetch fails loudly rather than silently skipping.
+Fetches directly from the GivenEnergy Cloud API (`POST /v1/inverter/{serial}/energy-flows`, bearer token in the `GIVENERGY_BEARER` repo secret, mapped to the `GIVENERGY_BEARER_TOKEN` env var inside the workflow). See [`scripts/fetch_and_append.py`](scripts/fetch_and_append.py). No fallback data source exists — if the API is unreachable, the fetch fails loudly rather than silently skipping.
 
 ## Scripts
 

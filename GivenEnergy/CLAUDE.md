@@ -24,4 +24,4 @@ Monnit needed room-exclusion constants because it has a fleet of *interchangeabl
 
 ## No fallback data source
 
-Unlike Monnit (which falls back to a Render proxy), there's no secondary source for GivenEnergy data — if the API is unreachable or `GIVENERGY_BEARER_TOKEN` is missing/expired, `fetch_and_append.py` raises rather than silently succeeding with stale or partial data.
+Unlike Monnit (which falls back to a Render proxy), there's no secondary source for GivenEnergy data — if the API is unreachable or the token (repo secret `GIVENERGY_BEARER`, read inside the script as `GIVENERGY_BEARER_TOKEN`) is missing/expired, `fetch_and_append.py` raises rather than silently succeeding with stale or partial data.
