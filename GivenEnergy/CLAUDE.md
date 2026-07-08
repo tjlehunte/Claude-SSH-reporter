@@ -31,3 +31,11 @@ Monnit needed room-exclusion constants because it has a fleet of *interchangeabl
 ## No fallback data source
 
 Unlike Monnit (which falls back to a Render proxy), there's no secondary source for GivenEnergy data — if the API is unreachable or the token (repo secret `GIVENERGY_BEARER`, read inside the script as `GIVENERGY_BEARER_TOKEN`) is missing/expired, `fetch_and_append.py` raises rather than silently succeeding with stale or partial data.
+
+## Bill estimate: fixed import tariff, live export rates, no secret needed
+
+- **Import** is a fixed tariff (unit rate 26.49p/kWh + standing charge 58.71p/day) — plain constants in `billing_utils.py`. Update them there directly if the tariff changes; there's no API for this side since it doesn't vary.
+- **Export** is on Agile Outgoing Octopus (product `AGILE-OUTGOING-19-05-13`, tariff `E-1R-AGILE-OUTGOING-19-05-13-G` — region G, confirmed via Octopus's public grid-supply-points lookup for the M5 postcode area), which genuinely varies by half-hour settlement period. `fetch_octopus_rates.py` fetches and caches these to `data/octopus_export_rates.jsonl`, high-water-marked and backfilled the same way as `fetch_and_append.py` (same `GIVENERGY_BACKFILL_DAYS` env var, so an energy backfill and a rates backfill always cover the same window).
+- **The Octopus standard-unit-rates endpoint is public** — no API key/secret required, confirmed against a real request. If the export tariff ever changes to a *different* product (not just a rate revision within Agile Outgoing), `OCTOPUS_PRODUCT_CODE`/`OCTOPUS_TARIFF_CODE` in `billing_utils.py` need updating to match.
+- **Matching rates to energy data**: `billing_utils.calculate_export_revenue()` converts each interval's naive Europe/London `start` to UTC to join against the rates file's UTC `valid_from`. On the two DST-transition days a year, ambiguous/nonexistent local times are dropped from the match rather than raised — a small, documented coverage gap, not a bug. A report's `export_rate_coverage_pct` reflects this; the summary line only shows a coverage caveat when it drops below 99%, since 100% (or near enough) is the overwhelmingly common case.
+- **Net figure**: `estimated_net_bill_gbp` is import cost minus export revenue — negative means net credit, not an error; reports print "net credit" instead of a negative "net cost" for readability.

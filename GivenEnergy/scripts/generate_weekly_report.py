@@ -20,6 +20,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from billing_utils import calculate_export_revenue, calculate_import_cost, load_export_rates
 from energy_utils import (
     FLOW_NAMES,
     flow_totals,
@@ -130,6 +131,12 @@ def main():
     sc = self_consumption_pct(generation, totals["PV to Home"], totals["PV to Battery"])
     ss = self_sufficiency_pct(consumption, imported)
 
+    num_days = (end - start).days
+    rates_df = load_export_rates()
+    import_cost = calculate_import_cost(imported, num_days)
+    export_revenue, rate_coverage_pct = calculate_export_revenue(window_df, rates_df)
+    net_bill = import_cost - export_revenue
+
     raw_flows_chart = fig_to_base64(plot_raw_flows(window_df))
     daily_totals_fig, daily_totals_df = plot_daily_totals(window_df)
     daily_totals_chart = fig_to_base64(daily_totals_fig)
@@ -157,6 +164,14 @@ def main():
             f"lowest: {worst_day.strftime('%Y-%m-%d')} ({daily_generation[worst_day]:.1f} kWh)."
         )
 
+    insights.append(f"Estimated import cost: £{import_cost:.2f} (unit rate + standing charge).")
+    coverage_note = "" if rate_coverage_pct >= 99 else f" (rate data covered {rate_coverage_pct:.0f}% of intervals)"
+    insights.append(f"Estimated export revenue: £{export_revenue:.2f} at your Agile Outgoing rate{coverage_note}.")
+    if net_bill >= 0:
+        insights.append(f"Estimated net cost: £{net_bill:.2f}.")
+    else:
+        insights.append(f"Estimated net credit: £{abs(net_bill):.2f}.")
+
     report_label = f"{start.strftime('%Y-%m-%d')}_to_{last_day.strftime('%Y-%m-%d')}"
 
     # Compact machine-readable stats, meant for a later local AI-insights
@@ -172,6 +187,10 @@ def main():
         "total_export_kwh": round(exported, 2),
         "self_consumption_pct": round(sc, 1) if sc is not None else None,
         "self_sufficiency_pct": round(ss, 2) if ss is not None else None,
+        "estimated_import_cost_gbp": round(import_cost, 2),
+        "estimated_export_revenue_gbp": round(export_revenue, 2),
+        "estimated_net_bill_gbp": round(net_bill, 2),
+        "export_rate_coverage_pct": round(rate_coverage_pct, 1),
         "daily_generation_kwh": [
             {"date": d.strftime("%Y-%m-%d"), "value": round(v, 2)} for d, v in daily_generation.items()
         ],

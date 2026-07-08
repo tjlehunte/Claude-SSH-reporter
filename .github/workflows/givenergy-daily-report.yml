@@ -36,6 +36,11 @@ jobs:
           GIVENERGY_BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
         run: python GivenEnergy/scripts/fetch_and_append.py
 
+      - name: Fetch Octopus export rates
+        env:
+          GIVENERGY_BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
+        run: python GivenEnergy/scripts/fetch_octopus_rates.py
+
       - name: Generate daily report
         run: python GivenEnergy/scripts/generate_report.py
 
@@ -44,6 +49,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -f GivenEnergy/data/history.jsonl ]; then git add GivenEnergy/data/history.jsonl; fi
+          if [ -f GivenEnergy/data/octopus_export_rates.jsonl ]; then git add GivenEnergy/data/octopus_export_rates.jsonl; fi
           if [ -d GivenEnergy/reports ]; then git add GivenEnergy/reports/; fi
           git diff --cached --quiet || git commit -m "Daily GivenEnergy report $(date -u +%Y-%m-%d)"
           git pull --rebase origin main

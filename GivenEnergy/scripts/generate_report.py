@@ -17,6 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
+from billing_utils import calculate_export_revenue, calculate_import_cost, load_export_rates
 from energy_utils import (
     FLOW_NAMES,
     flow_totals,
@@ -82,7 +83,7 @@ def plot_totals_bar(totals):
     return fig
 
 
-def build_insights(df, totals):
+def build_insights(df, totals, num_days, rates_df):
     lines = []
     generation = float(total_generation(df).sum())
     consumption = float(total_consumption(df).sum())
@@ -97,6 +98,17 @@ def build_insights(df, totals):
     ss = self_sufficiency_pct(consumption, imported)
     if ss is not None:
         lines.append(f"Self-sufficiency: {ss:.2f}% of home consumption was met without drawing from the grid.")
+
+    import_cost = calculate_import_cost(imported, num_days)
+    export_revenue, coverage_pct = calculate_export_revenue(df, rates_df)
+    net = import_cost - export_revenue
+    lines.append(f"Estimated import cost: £{import_cost:.2f} (unit rate + standing charge).")
+    coverage_note = "" if coverage_pct >= 99 else f" (rate data covered {coverage_pct:.0f}% of intervals)"
+    lines.append(f"Estimated export revenue: £{export_revenue:.2f} at your Agile Outgoing rate{coverage_note}.")
+    if net >= 0:
+        lines.append(f"Estimated net cost: £{net:.2f}.")
+    else:
+        lines.append(f"Estimated net credit: £{abs(net):.2f}.")
     return lines
 
 
@@ -124,7 +136,9 @@ def main():
     totals = flow_totals(window_df)
     flows_chart = fig_to_base64(plot_flows(window_df))
     totals_chart = fig_to_base64(plot_totals_bar(totals))
-    insights = build_insights(window_df, totals)
+    num_days = (end - start).days
+    rates_df = load_export_rates()
+    insights = build_insights(window_df, totals, num_days, rates_df)
 
     report_date = start.strftime("%Y-%m-%d")
     display_end = window_df["end"].max()
