@@ -2896,4 +2896,5 @@
 {"Battery to Grid": 0, "Battery to Home": 0, "Grid to Battery": 0, "Grid to Home": 0, "PV to Battery": 0, "PV to Grid": 0, "PV to Home": 0.1000000000003638, "end": "2026-07-08 08:30", "start": "2026-07-08 08:00"}
 {"Battery to Grid": 0, "Battery to Home": 0, "Grid to Battery": 0.1, "Grid to Home": 0, "PV to Battery": 0, "PV to Grid": 0, "PV to Home": 0.1999999999998181, "end": "2026-07-08 09:00", "start": "2026-07-08 08:30"}
 {"Battery to Grid": 0, "Battery to Home": 0, "Grid to Battery": 0, "Grid to Home": 0, "PV to Battery": 0, "PV to Grid": 0, "PV to Home": 0.1999999999998181, "end": "2026-07-08 09:30", "start": "2026-07-08 09:00"}
-{"Battery to Grid": 0, "Battery to Home": 0, "Grid to Battery": 0, "Grid to Home": 0, "PV to Battery": 0, "PV to Grid": 0, "PV to Home": 0.1000000000003638, "end": "2026-07-08 10:00", "start": "2026-07-08 09:30"}
+{"Battery to Grid": 0, "Battery to Home": 0, "Grid to Battery": 0, "Grid to Home": 0, "PV to Battery": 0, "PV to Grid": 0, "PV to Home": 0.2000000000007276, "end": "2026-07-08 10:00", "start": "2026-07-08 09:30"}
+{"Battery to Grid": 0, "Battery to Home": 0, "Grid to Battery": 0.1, "Grid to Home": 0, "PV to Battery": 0.09999999999999998, "PV to Grid": 0, "PV to Home": 0.09999999999981812, "end": "2026-07-08 10:30", "start": "2026-07-08 10:00"}
