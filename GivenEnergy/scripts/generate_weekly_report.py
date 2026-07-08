@@ -38,14 +38,18 @@ WEEKLY_DIR = ROOT / "reports" / "weekly"
 LATEST_FILE = WEEKLY_DIR / "latest.html"
 WINDOW_DAYS = 7
 
+# 7 of the 8 hues from the categorical palette (blue/aqua/yellow/green/violet/
+# red/orange - magenta dropped), reordered so each pair that's always visually
+# adjacent (legend order, stacked-bar segments) sits far apart on the hue
+# wheel - the previous amber/brown and green/sea-green pairs were too close.
 FLOW_COLORS = {
-    "PV to Home": "#e0a030",
-    "PV to Battery": "#c2793d",
-    "PV to Grid": "#3f9142",
-    "Grid to Home": "#4a7ab5",
-    "Grid to Battery": "#7a5ab5",
-    "Battery to Home": "#2e8b57",
-    "Battery to Grid": "#d64545",
+    "PV to Home": "#eda100",
+    "PV to Battery": "#2a78d6",
+    "PV to Grid": "#eb6834",
+    "Grid to Home": "#1baf7a",
+    "Grid to Battery": "#e34948",
+    "Battery to Home": "#008300",
+    "Battery to Grid": "#4a3aa7",
 }
 
 
