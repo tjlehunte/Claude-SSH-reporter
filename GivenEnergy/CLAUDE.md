@@ -28,6 +28,14 @@ Monnit needed room-exclusion constants because it has a fleet of *interchangeabl
 
 `energy_utils.self_sufficiency_pct(consumption_kwh, grid_drawn_kwh)` takes `grid_drawn_kwh` as `total_import()` (Grid to Home + Grid to Battery), not just Grid to Home. This was a deliberate correction: a day can show `Grid to Home == 0` (mathematically 100% self-sufficient by a narrower definition) while still importing grid energy to charge the battery — that energy isn't really "self-sufficient" just because it's discharged to the home later rather than drawn directly. Because of this, the metric can in principle go negative (heavy grid-charging on a low-consumption day) — that's not clamped to 0, since a negative value is a real signal (grid draw exceeded same-window consumption), not an error.
 
+## Window end must come from the `end` column, not `start`
+
+The displayed "Window: ... to ..." line (and the weekly `window_end` stats field) uses `window_df["end"].max()`, not `window_df["start"].max()`. Using `start` understates the window by one interval — e.g. a full day would show "00:00 to 23:30" instead of "00:00 to 00:00 (next day)". The weekly report's `report_label`/filename deliberately does the opposite: it derives the last-day date from `window_df["start"].max()` (via the `last_day` variable), not `end`, because the last interval's `end` can roll into the next calendar day (the 23:30-00:00 interval) and would otherwise misname the file. Don't "fix" either of these to match the other — they're intentionally different for different reasons.
+
+## Daily/weekly schedule times don't need to change for Octopus's 4pm rate publication
+
+Octopus publishes Agile rates day-ahead (tomorrow's rates go live ~4pm today). This looks like it could matter for the export-rate fetch, but it doesn't: every report covers the *previous fully-completed* day/week, so the rates it needs were already published the *afternoon before that period even started* — at least 24-36 hours before any report runs, regardless of what time of day the workflow fires. The 06:00 UTC schedule exists for a different reason (GivenEnergy's own inverter-cloud data lag, not Octopus). If `export_rate_coverage_pct` ever drops meaningfully below 100% despite this, that points to an actual Octopus outage/delay, not a scheduling problem — don't reach for "run it later in the day" as the fix.
+
 ## No fallback data source
 
 Unlike Monnit (which falls back to a Render proxy), there's no secondary source for GivenEnergy data — if the API is unreachable or the token (repo secret `GIVENERGY_BEARER`, read inside the script as `GIVENERGY_BEARER_TOKEN`) is missing/expired, `fetch_and_append.py` raises rather than silently succeeding with stale or partial data.
