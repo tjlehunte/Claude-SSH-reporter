@@ -23,6 +23,8 @@ If either the report workflows or the AI-insights tasks change how they authenti
 
 Pages itself is configured with `build_type: workflow` (set via `POST /repos/.../pages`, not the branch-serving mode) specifically so only what this workflow explicitly copies into `_site/` is ever public — the raw `data/*.jsonl` history and scripts are deliberately excluded, even though this repo is already public. Don't switch Pages back to branch-serving mode without re-considering that.
 
+**CDN caching (not configurable from this repo):** GitHub Pages serves through Fastly with `Cache-Control: max-age=600` — a deploy can be fully live server-side while a browser still shows a copy up to 10 minutes old, and a normal refresh doesn't reliably bypass it. This isn't a pipeline bug if a change "isn't showing up" — verify with `curl -sI <url>` (check the `Age` header) or a cache-busting query string (`?v=x`) before assuming the publish failed.
+
 ## Shared push concurrency
 
 All four workflows (`monnit-daily-report.yml`, `monnit-weekly-report.yml`, `givenergy-daily-report.yml`, `givenergy-weekly-report.yml`) share one concurrency group (`reporter-writes`) so GitHub Actions queues them instead of racing on `git push` — any two of them pushing to `main` at once risks a non-fast-forward rejection. Each also does `git pull --rebase` before pushing as defense-in-depth against a locally-scheduled AI-insights routine pushing at an unpredictable time outside GitHub Actions' concurrency control.
