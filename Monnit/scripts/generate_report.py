@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 
 from sensor_utils import (
     condensation_margin,
+    condensation_room_order,
     load_history_wide,
     risk_color,
     room_order,
@@ -157,7 +158,8 @@ def main():
     )
     margin_chart = fig_to_base64(
         plot_latest_bar(
-            latest_margin, rooms, "Margin", "Condensation risk margin (Temperature − Dewpoint)", "°C",
+            latest_margin, condensation_room_order(rooms), "Margin",
+            "Condensation risk margin (Temperature − Dewpoint)", "°C",
             color_fn=risk_color,
         )
     )

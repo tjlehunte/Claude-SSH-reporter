@@ -247,6 +247,19 @@ def room_order(long_df):
     return rooms
 
 
+def condensation_room_order(rooms):
+    """Takes room_order()'s output and moves Loft 1/Loft 2 to sit directly
+    before Outside, instead of wherever they land alphabetically among the
+    other rooms. Used only for the condensation-margin chart - grouping the
+    two non-living-space categories together at the right edge, next to
+    Outside, reads more naturally there than interleaving lofts alphabetically
+    among living rooms. Temperature/humidity charts keep plain room_order()."""
+    lofts = [r for r in rooms if r in ("Loft 1", "Loft 2")]
+    outside = [r for r in rooms if r == "Outside"]
+    others = [r for r in rooms if r not in lofts and r not in outside]
+    return others + lofts + outside
+
+
 def condensation_margin(long_df):
     """Per (MessageDate, Room) Temperature - Dewpoint margin."""
     temp = long_df[long_df["Metric"] == "Temperature"][["MessageDate", "Room", "Value"]].rename(

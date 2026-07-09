@@ -22,6 +22,7 @@ import pandas as pd
 
 from sensor_utils import (
     condensation_margin,
+    condensation_room_order,
     detect_sharp_changes,
     find_collective_events,
     load_history_wide,
@@ -157,8 +158,8 @@ def main():
     )
     margin_chart = fig_to_base64(
         plot_bar(
-            worst_margin, rooms, "Weekly worst-case condensation risk margin", "°C (minimum seen)",
-            color_fn=lambda room, v: room_category_color(room),
+            worst_margin, condensation_room_order(rooms), "Weekly worst-case condensation risk margin",
+            "°C (minimum seen)", color_fn=lambda room, v: room_category_color(room),
         )
     )
 
