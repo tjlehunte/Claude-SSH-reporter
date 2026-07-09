@@ -58,7 +58,7 @@ jobs:
           # data-source line beneath with its top margin matched to the h1
           # title's default top margin (0.67em of 2em = 1.34rem) so the line
           # sits with equal spacing from the row above and the title below.
-          HEADER='<div style="background:#fff;padding-top:0.6rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:1.6rem;flex-wrap:wrap"><a href="DEPTH" style="color:#4a7ab5;text-decoration:none;font-size:1.15rem">\&larr; All reports</a><div style="display:flex;align-items:center;gap:1.6rem;flex-wrap:wrap"><img src="DEPTHassets/ehl-logo-light.png" alt="Energy House Labs" style="height:48px;width:auto"><img src="DEPTHassets/sml-logo-light.png" alt="Smart Meters, Smart Homes Lab" style="height:48px;width:auto"><img src="DEPTHassets/UOS-logo-light.png" alt="University of Salford" style="height:48px;width:auto"></div></div><p style="margin:1.34rem 0 0;color:#666">Live data from the Salford Smart Home</p></div>'
+          HEADER='<div style="background:#fff;padding-top:0.6rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:1.6rem;flex-wrap:wrap"><a href="DEPTH" style="color:#4a7ab5;text-decoration:none;font-size:1.15rem">\&larr; All reports</a><div style="display:flex;align-items:center;gap:1.6rem;flex-wrap:wrap"><img src="DEPTHassets/ehl-logo-light.png" alt="Energy House Labs" style="height:48px;width:auto"><img src="DEPTHassets/sml-logo-light.png" alt="Smart Meters, Smart Homes Lab" style="height:48px;width:auto"><img src="DEPTHassets/UOS-logo-light.png" alt="University of Salford" style="height:48px;width:auto"></div></div><p style="margin:1.34rem 0 0;color:#666">These reports are based on data collected from the Salford Smart Home</p></div>'
           for f in _site/monnit/index.html _site/givenergy/index.html; do
             sed -i "s|<body>|<body>\n${HEADER//DEPTH/../}|" "$f"
           done
@@ -88,7 +88,7 @@ jobs:
           <img src="assets/UOS-logo-light.png" alt="University of Salford">
           </div>
           <h1>Reports</h1>
-          <p class="source">Live data from the Salford Smart Home.</p>
+          <p class="source">These reports are based on data collected from the Salford Smart Home.</p>
           <a href="monnit/">Monnit &mdash; daily sensor report</a>
           <a href="monnit/weekly/">Monnit &mdash; weekly sensor report</a>
           <a href="givenergy/">GivenEnergy &mdash; daily energy report</a>
