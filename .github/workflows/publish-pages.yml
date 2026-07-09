@@ -40,6 +40,25 @@ jobs:
           cp Monnit/reports/weekly/latest.html _site/monnit/weekly/index.html
           cp GivenEnergy/reports/latest.html _site/givenergy/index.html
           cp GivenEnergy/reports/weekly/latest.html _site/givenergy/weekly/index.html
+
+          # Inject a back-to-index link at the top of each report. Done here at
+          # publish time, not in the report generators, so the reports stay
+          # self-contained everywhere else (repo files, dated snapshots) - the
+          # link only exists on the Pages site, where the index it points to
+          # actually exists. Daily reports sit one level deep, weeklies two.
+          # \& because & is special in a sed replacement (expands to the match)
+          BACK='<p style="margin-bottom:0"><a href="HREF" style="color:#4a7ab5;text-decoration:none;font-size:0.9rem">\&larr; All reports</a></p>'
+          for f in _site/monnit/index.html _site/givenergy/index.html; do
+            sed -i "s|<body>|<body>\n${BACK/HREF/../}|" "$f"
+          done
+          for f in _site/monnit/weekly/index.html _site/givenergy/weekly/index.html; do
+            sed -i "s|<body>|<body>\n${BACK/HREF/../../}|" "$f"
+          done
+          # Fail loudly if the injection didn't land (e.g. the generators'
+          # <body> tag changes shape) rather than silently publishing without it.
+          for f in _site/monnit/index.html _site/monnit/weekly/index.html _site/givenergy/index.html _site/givenergy/weekly/index.html; do
+            grep -q "All reports" "$f" || { echo "back-link injection failed for $f"; exit 1; }
+          done
           cat > _site/index.html <<'EOF'
           <!doctype html>
           <html><head><meta charset="utf-8"><title>Reports</title>
