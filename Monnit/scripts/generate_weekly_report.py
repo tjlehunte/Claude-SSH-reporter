@@ -34,6 +34,10 @@ from sensor_utils import (
     HOUSE_INTERIOR_EXCLUDE,
     HUMIDITY_HIGHLIGHT_EXCLUDE,
     PEAK_TEMPERATURE_EXCLUDE,
+    RISK_ELEVATED,
+    RISK_ELEVATED_COLOR,
+    RISK_HIGH,
+    RISK_HIGH_COLOR,
     SHARP_CHANGE_WINDOW_MINUTES,
     SHARP_HUMIDITY_THRESHOLD_PCT,
     SHARP_TEMPERATURE_THRESHOLD_C,
@@ -99,12 +103,18 @@ def most_recent_complete_week(latest_ts):
     return this_monday - timedelta(days=7), this_monday
 
 
-def plot_bar(values_by_room, rooms, title, ylabel, color_fn=None):
-    """color_fn, if given, receives (room, value) and returns a hex color."""
+def plot_bar(values_by_room, rooms, title, ylabel, color_fn=None, hlines=None):
+    """color_fn, if given, receives (room, value) and returns a hex color.
+
+    hlines, if given, is a list of (value, color) dashed reference lines
+    (e.g. condensation risk thresholds).
+    """
     values = [values_by_room.get(room, float("nan")) for room in rooms]
     colors = [color_fn(room, v) if color_fn else "#4a7ab5" for room, v in zip(rooms, values)]
     fig, ax = plt.subplots(figsize=(10, 4.5))
     ax.bar(rooms, values, color=colors)
+    for value, color in hlines or []:
+        ax.axhline(value, color=color, linestyle="--", linewidth=1.4)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
     ax.tick_params(axis="x", rotation=60)
@@ -160,6 +170,7 @@ def main():
         plot_bar(
             worst_margin, condensation_room_order(rooms), "Weekly worst-case condensation risk margin",
             "°C (minimum seen)", color_fn=lambda room, v: room_category_color(room),
+            hlines=[(RISK_ELEVATED, RISK_ELEVATED_COLOR), (RISK_HIGH, RISK_HIGH_COLOR)],
         )
     )
 
