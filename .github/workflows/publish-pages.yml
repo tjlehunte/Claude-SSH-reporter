@@ -1,9 +1,17 @@
 name: Publish reports to Pages
 
-# Deliberately NOT triggered by `on: push` - the 4 report workflows push using
-# the default GITHUB_TOKEN, and GitHub suppresses push-triggered workflow runs
-# for pushes made with that token (loop prevention), so a push trigger here
-# would silently never fire. workflow_run is exempt from that suppression.
+# Two triggers cover two different pushers, deliberately:
+# - workflow_run for the 4 report workflows: they push using the default
+#   GITHUB_TOKEN, and GitHub suppresses push-triggered workflow runs for
+#   pushes made with that token (loop prevention), so a plain push trigger
+#   would silently never fire for them. workflow_run is exempt from that
+#   suppression.
+# - push (path-filtered to the 4 latest.html files) for the weekly AI-insights
+#   scheduled tasks: those are local routines, not GitHub Actions, and push
+#   with a personal access token rather than GITHUB_TOKEN - so the loop
+#   suppression above doesn't apply to them, and a push trigger fires normally.
+#   Without this, the AI-insights narrative would land in the repo but never
+#   reach Pages until someone manually re-ran this workflow.
 on:
   workflow_run:
     workflows:
@@ -12,6 +20,13 @@ on:
       - "Daily GivenEnergy report"
       - "Weekly GivenEnergy report"
     types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - 'Monnit/reports/latest.html'
+      - 'Monnit/reports/weekly/latest.html'
+      - 'GivenEnergy/reports/latest.html'
+      - 'GivenEnergy/reports/weekly/latest.html'
   workflow_dispatch: {}
 
 permissions:
@@ -25,7 +40,7 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

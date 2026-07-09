@@ -15,7 +15,11 @@ Pushing changes to `.github/workflows/*.yml` requires a token with `workflow` sc
 
 ## Pages publishing (`publish-pages.yml`)
 
-Triggered by `workflow_run` (completion of any of the 4 report workflows), **not** `on: push` — the 4 report workflows push using the default `GITHUB_TOKEN`, and GitHub suppresses `push`-triggered workflow runs for pushes made with that token (loop-prevention), so a push trigger here would silently never fire. `workflow_run` is exempt from that suppression and is the correct trigger for "run something after another workflow's push lands."
+Two triggers, deliberately, for two different pushers:
+- `workflow_run` (completion of any of the 4 report workflows) — those push using the default `GITHUB_TOKEN`, and GitHub suppresses `push`-triggered workflow runs for pushes made with that token (loop-prevention), so a plain push trigger would silently never fire for them. `workflow_run` is exempt from that suppression.
+- `push`, path-filtered to just the 4 `latest.html` files — for the weekly AI-insights scheduled tasks, which are local routines (not GitHub Actions) that push directly with a personal access token, not `GITHUB_TOKEN`. The loop-suppression above doesn't apply to PAT-authenticated pushes, so a plain push trigger works for these. Without this second trigger, an AI-insights paragraph lands in the repo but never reaches Pages until someone manually re-dispatches this workflow — that gap existed for a while before being caught and fixed (2026-07-09).
+
+If either the report workflows or the AI-insights tasks change how they authenticate their push, re-check whether the corresponding trigger here still fires.
 
 Pages itself is configured with `build_type: workflow` (set via `POST /repos/.../pages`, not the branch-serving mode) specifically so only what this workflow explicitly copies into `_site/` is ever public — the raw `data/*.jsonl` history and scripts are deliberately excluded, even though this repo is already public. Don't switch Pages back to branch-serving mode without re-considering that.
 
