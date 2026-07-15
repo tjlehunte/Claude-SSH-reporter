@@ -124,10 +124,10 @@ jobs:
           </div>
           <h1>Reports</h1>
           <p class="source">These reports are based on data collected from the Salford Smart Home.</p>
-          <a href="monnit/">Monnit &mdash; daily sensor report</a>
-          <a href="monnit/weekly/">Monnit &mdash; weekly sensor report</a>
-          <a href="givenergy/">GivenEnergy &mdash; daily energy report</a>
-          <a href="givenergy/weekly/">GivenEnergy &mdash; weekly energy report</a>
+          <a href="monnit/">&#127777;&#65039; Monnit &mdash; daily sensor report</a>
+          <a href="monnit/weekly/">&#127777;&#65039; Monnit &mdash; weekly sensor report</a>
+          <a href="givenergy/">&#9889;&#65039; GivenEnergy &mdash; daily energy report</a>
+          <a href="givenergy/weekly/">&#9889;&#65039; GivenEnergy &mdash; weekly energy report</a>
           </body></html>
           EOF
 
