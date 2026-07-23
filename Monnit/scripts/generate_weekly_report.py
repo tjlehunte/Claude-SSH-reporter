@@ -2,15 +2,16 @@
 """Generate a self-contained weekly HTML report from data/history.jsonl.
 
 Reports on the most recently *completed* Monday-Sunday calendar week
-(relative to the latest data on hand, not wall-clock "now"), not a rolling
-7-day-from-now window: daily mean temperature per room, weekly average
+(relative to wall-clock "now", not the latest data on hand - anchoring on
+the data would misfire if this job runs before the day's fetch has landed),
+not a rolling 7-day-from-now window: daily mean temperature per room, weekly average
 humidity per room, and the weekly worst-case (minimum) condensation-risk
 margin per room.
 """
 import base64
 import io
 import json
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import matplotlib
@@ -97,9 +98,15 @@ def plot_daily_mean_series(long_df, rooms, metric, ylabel, title):
     return fig
 
 
-def most_recent_complete_week(latest_ts):
-    """Monday 00:00 .. next Monday 00:00 (exclusive) of the week before latest_ts's week."""
-    this_monday = (latest_ts - timedelta(days=latest_ts.weekday())).normalize()
+def most_recent_complete_week(now):
+    """Monday 00:00 .. next Monday 00:00 (exclusive) of the week before now's week.
+
+    `now` should be wall-clock time, not a data timestamp - if this job runs
+    before the current day's reading has been ingested, the latest row in the
+    data on hand can still sit in the *previous* calendar week, which would
+    otherwise make this look one week further behind than it actually is.
+    """
+    this_monday = (now - timedelta(days=now.weekday())).normalize()
     return this_monday - timedelta(days=7), this_monday
 
 
@@ -127,8 +134,8 @@ def main():
         print("[weekly] no history yet, skipping report generation")
         return
 
-    latest_ts = df_wide["MessageDate"].max()
-    week_start, week_end = most_recent_complete_week(latest_ts)
+    now = pd.Timestamp(datetime.now(timezone.utc)).tz_localize(None)
+    week_start, week_end = most_recent_complete_week(now)
     window_df = df_wide[(df_wide["MessageDate"] >= week_start) & (df_wide["MessageDate"] < week_end)]
 
     if window_df.empty:
