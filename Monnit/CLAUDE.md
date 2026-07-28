@@ -14,7 +14,7 @@ All of these only affect the mechanical "highlight" figures (Summary bullets, sc
 
 ## Weekly AI-insights placeholder
 
-`generate_weekly_report.py` always resets `reports/weekly/latest.html`'s AI-insights section to `<!-- AI_INSIGHTS_PLACEHOLDER --><p><em>Not yet generated.</em></p>` on every run — the actual narrative is filled in separately by a **locally scheduled Claude Desktop task** (`monnit-weekly-ai-insights`, not part of this repo, not a GitHub Action), which runs Monday 09:00 local time after the weekly workflow. If you regenerate the weekly report while testing and want to see the filled-in version, you'll need to either wait for that routine or manually replace the placeholder (the HTML file is too large for line-based diff tools since it embeds base64 PNG charts — use a literal string replace, e.g. `perl -i -0pe 's/\Q$old\E/$new/'`, not the Edit tool).
+`generate_weekly_report.py` always resets `reports/weekly/latest.html`'s AI-insights section to `<!-- AI_INSIGHTS_PLACEHOLDER --><p><em>Not yet generated.</em></p>` on every run — the actual narrative is filled in separately by a **locally scheduled Claude Desktop task** (`monnit-weekly-ai-insights`, not part of this repo, not a GitHub Action), which runs Monday 07:00 UTC, an hour after the weekly workflow's 06:00 UTC schedule. If you regenerate the weekly report while testing and want to see the filled-in version, you'll need to either wait for that routine or manually replace the placeholder (the HTML file is too large for line-based diff tools since it embeds base64 PNG charts — use a literal string replace, e.g. `perl -i -0pe 's/\Q$old\E/$new/'`, not the Edit tool).
 
 ## Data source specifics
 

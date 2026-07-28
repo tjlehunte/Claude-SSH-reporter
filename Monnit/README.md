@@ -5,8 +5,8 @@ Automated daily/weekly reporting for a 16-room Monnit home sensor network (tempe
 ## What it does
 
 - **Daily** ([`monnit-daily-report.yml`](../.github/workflows/monnit-daily-report.yml), 01:00 UTC): fetches new sensor readings, dedups into [`data/history.jsonl`](data/history.jsonl), and generates [`reports/latest.html`](reports/latest.html) for the previous UTC calendar day.
-- **Weekly** ([`monnit-weekly-report.yml`](../.github/workflows/monnit-weekly-report.yml), Monday 01:00 UTC): aggregates the previous Monday–Sunday week into [`reports/weekly/latest.html`](reports/weekly/latest.html) — temperature/humidity charts, CIBSE Guide A thermal comfort scoring, and detection of sharp or house-wide temperature/humidity swings (e.g. windows being opened).
-- **AI insights**: a locally scheduled Claude Desktop routine reads the weekly report's compact `latest_stats.json` (not the raw history) shortly after the weekly workflow runs, and writes a short grounded narrative paragraph into the report.
+- **Weekly** ([`monnit-weekly-report.yml`](../.github/workflows/monnit-weekly-report.yml), Monday 06:00 UTC): aggregates the previous Monday–Sunday week into [`reports/weekly/latest.html`](reports/weekly/latest.html) — temperature/humidity charts, CIBSE Guide A thermal comfort scoring, and detection of sharp or house-wide temperature/humidity swings (e.g. windows being opened).
+- **AI insights**: a locally scheduled Claude Desktop routine (Monday 07:00 UTC) reads the weekly report's compact `latest_stats.json` (not the raw history) shortly after the weekly workflow runs, and writes a short grounded narrative paragraph into the report.
 
 Dated snapshots accumulate in `reports/daily/` and `reports/weekly/` as a permanent history; `reports/latest.html` and `reports/weekly/latest.html` always point at the most recent report.
 
