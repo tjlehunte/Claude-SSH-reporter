@@ -41,6 +41,13 @@ jobs:
           GIVENERGY_BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
         run: python GivenEnergy/scripts/fetch_octopus_rates.py
 
+      # NEW: import (Flexible Octopus / VAR, region G) rate history. Full
+      # refresh each run - no backfill env var needed, the script always
+      # fetches the entire (dozen-row) history so closed-off valid_to values
+      # self-correct. Public endpoint, no secrets.
+      - name: Fetch Octopus import rates
+        run: python GivenEnergy/scripts/fetch_octopus_import_rates.py
+
       - name: Generate daily report
         run: python GivenEnergy/scripts/generate_report.py
 
@@ -50,6 +57,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -f GivenEnergy/data/history.jsonl ]; then git add GivenEnergy/data/history.jsonl; fi
           if [ -f GivenEnergy/data/octopus_export_rates.jsonl ]; then git add GivenEnergy/data/octopus_export_rates.jsonl; fi
+          # NEW: without this line the import cache is fetched but never committed,
+          # and the weekly workflow (which only reads committed data) never sees it.
+          if [ -f GivenEnergy/data/octopus_import_rates.jsonl ]; then git add GivenEnergy/data/octopus_import_rates.jsonl; fi
           if [ -d GivenEnergy/reports ]; then git add GivenEnergy/reports/; fi
           git diff --cached --quiet || git commit -m "Daily GivenEnergy report $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
