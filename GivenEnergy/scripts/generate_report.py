@@ -17,7 +17,12 @@ matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
-from billing_utils import calculate_export_revenue, calculate_import_cost, load_export_rates
+from billing_utils import (
+    calculate_export_revenue,
+    calculate_import_cost,
+    load_export_rates,
+    load_import_rates,
+)
 from energy_utils import (
     FLOW_NAMES,
     flow_totals,
@@ -83,7 +88,10 @@ def plot_totals_bar(totals):
     return fig
 
 
-def build_insights(df, totals, num_days, rates_df):
+def build_insights(df, totals, rates_df, import_rates_df):
+    # num_days parameter dropped: it existed only to feed the old flat
+    # standing-charge multiply in calculate_import_cost, which now derives
+    # the days (and their per-day standing charge) from the window itself.
     lines = []
     generation = float(total_generation(df).sum())
     consumption = float(total_consumption(df).sum())
@@ -99,10 +107,11 @@ def build_insights(df, totals, num_days, rates_df):
     if ss is not None:
         lines.append(f"Self-sufficiency: {ss:.2f}% of home consumption was met without drawing from the grid.")
 
-    import_cost = calculate_import_cost(imported, num_days)
+    import_cost, import_coverage_pct = calculate_import_cost(df, import_rates_df)
     export_revenue, coverage_pct = calculate_export_revenue(df, rates_df)
     net = import_cost - export_revenue
-    lines.append(f"Estimated import cost: £{import_cost:.2f} (unit rate + standing charge).")
+    import_note = "" if import_coverage_pct >= 99 else f" (rate data covered {import_coverage_pct:.0f}% of intervals)"
+    lines.append(f"Estimated import cost: £{import_cost:.2f} (live Flexible Octopus rate + standing charge){import_note}.")
     coverage_note = "" if coverage_pct >= 99 else f" (rate data covered {coverage_pct:.0f}% of intervals)"
     lines.append(f"Estimated export revenue: £{export_revenue:.2f} at your Agile Outgoing rate{coverage_note}.")
     if net >= 0:
@@ -136,9 +145,9 @@ def main():
     totals = flow_totals(window_df)
     flows_chart = fig_to_base64(plot_flows(window_df))
     totals_chart = fig_to_base64(plot_totals_bar(totals))
-    num_days = (end - start).days
     rates_df = load_export_rates()
-    insights = build_insights(window_df, totals, num_days, rates_df)
+    import_rates_df = load_import_rates()
+    insights = build_insights(window_df, totals, rates_df, import_rates_df)
 
     report_date = start.strftime("%Y-%m-%d")
     display_end = window_df["end"].max()

@@ -20,7 +20,12 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from billing_utils import calculate_export_revenue, calculate_import_cost, load_export_rates
+from billing_utils import (
+    calculate_export_revenue,
+    calculate_import_cost,
+    load_export_rates,
+    load_import_rates,
+)
 from energy_utils import (
     FLOW_NAMES,
     flow_totals,
@@ -131,9 +136,12 @@ def main():
     sc = self_consumption_pct(generation, totals["PV to Home"], totals["PV to Battery"])
     ss = self_sufficiency_pct(consumption, imported)
 
-    num_days = (end - start).days
     rates_df = load_export_rates()
-    import_cost = calculate_import_cost(imported, num_days)
+    import_rates_df = load_import_rates()
+    # num_days no longer feeds the import cost: calculate_import_cost now
+    # derives each day's standing charge from the window itself, against the
+    # rate valid on that specific day.
+    import_cost, import_coverage_pct = calculate_import_cost(window_df, import_rates_df)
     export_revenue, rate_coverage_pct = calculate_export_revenue(window_df, rates_df)
     net_bill = import_cost - export_revenue
 
@@ -164,7 +172,8 @@ def main():
             f"lowest: {worst_day.strftime('%Y-%m-%d')} ({daily_generation[worst_day]:.1f} kWh)."
         )
 
-    insights.append(f"Estimated import cost: £{import_cost:.2f} (unit rate + standing charge).")
+    import_note = "" if import_coverage_pct >= 99 else f" (rate data covered {import_coverage_pct:.0f}% of intervals)"
+    insights.append(f"Estimated import cost: £{import_cost:.2f} (live Flexible Octopus rate + standing charge){import_note}.")
     coverage_note = "" if rate_coverage_pct >= 99 else f" (rate data covered {rate_coverage_pct:.0f}% of intervals)"
     insights.append(f"Estimated export revenue: £{export_revenue:.2f} at your Agile Outgoing rate{coverage_note}.")
     if net_bill >= 0:
@@ -191,6 +200,7 @@ def main():
         "estimated_export_revenue_gbp": round(export_revenue, 2),
         "estimated_net_bill_gbp": round(net_bill, 2),
         "export_rate_coverage_pct": round(rate_coverage_pct, 1),
+        "import_rate_coverage_pct": round(import_coverage_pct, 1),
         "daily_generation_kwh": [
             {"date": d.strftime("%Y-%m-%d"), "value": round(v, 2)} for d, v in daily_generation.items()
         ],
