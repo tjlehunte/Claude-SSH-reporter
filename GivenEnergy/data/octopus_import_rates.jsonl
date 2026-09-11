@@ -9,7 +9,6 @@
 {"charge_type": "standing_charge", "valid_from": "2026-01-01T00:00:00Z", "valid_to": "2026-03-31T23:00:00Z", "value_inc_vat_pence": 50.88258}
 {"charge_type": "standing_charge", "valid_from": "2026-03-31T23:00:00Z", "valid_to": "2026-06-30T23:00:00Z", "value_inc_vat_pence": 47.078955}
 {"charge_type": "standing_charge", "valid_from": "2026-06-30T23:00:00Z", "valid_to": "2026-09-30T23:00:00Z", "value_inc_vat_pence": 44.321865}
-{"charge_type": "standing_charge", "valid_from": "2026-09-30T23:00:00Z", "valid_to": null, "value_inc_vat_pence": 46.53789}
 {"charge_type": "unit_rate", "valid_from": "2022-11-01T00:00:00Z", "valid_to": "2023-01-01T00:00:00Z", "value_inc_vat_pence": 33.4761}
 {"charge_type": "unit_rate", "valid_from": "2023-01-01T00:00:00Z", "valid_to": "2023-03-31T23:00:00Z", "value_inc_vat_pence": 33.329415}
 {"charge_type": "unit_rate", "valid_from": "2023-03-31T23:00:00Z", "valid_to": "2023-06-30T23:00:00Z", "value_inc_vat_pence": 50.116815}
