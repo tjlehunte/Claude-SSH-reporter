@@ -17,16 +17,16 @@ on:
     workflows:
       - "Daily sensor report"
       - "Weekly sensor report"
-      - "Daily GivenEnergy report"
-      - "Weekly GivenEnergy report"
+      - "Daily Givenergy report"
+      - "Weekly Givenergy report"
     types: [completed]
   push:
     branches: [main]
     paths:
       - 'Monnit/reports/latest.html'
       - 'Monnit/reports/weekly/latest.html'
-      - 'GivenEnergy/reports/latest.html'
-      - 'GivenEnergy/reports/weekly/latest.html'
+      - 'Givenergy/reports/latest.html'
+      - 'Givenergy/reports/weekly/latest.html'
   workflow_dispatch: {}
 
 permissions:
@@ -53,8 +53,8 @@ jobs:
           mkdir -p _site/monnit/weekly _site/givenergy/weekly
           cp Monnit/reports/latest.html _site/monnit/index.html
           cp Monnit/reports/weekly/latest.html _site/monnit/weekly/index.html
-          cp GivenEnergy/reports/latest.html _site/givenergy/index.html
-          cp GivenEnergy/reports/weekly/latest.html _site/givenergy/weekly/index.html
+          cp Givenergy/reports/latest.html _site/givenergy/index.html
+          cp Givenergy/reports/weekly/latest.html _site/givenergy/weekly/index.html
 
           mkdir -p _site/assets
           cp assets/ehl-logo-light.png assets/sml-logo-light.png assets/UOS-logo-light.png _site/assets/
@@ -126,8 +126,8 @@ jobs:
           <p class="source">These reports are based on data collected from the Salford Smart Home.</p>
           <a href="monnit/"><span style="text-decoration:none;display:inline-block;margin-right:0.4em">&#127777;&#65039;</span>Monnit &mdash; daily sensor report</a>
           <a href="monnit/weekly/"><span style="text-decoration:none;display:inline-block;margin-right:0.4em">&#127777;&#65039;</span>Monnit &mdash; weekly sensor report</a>
-          <a href="givenergy/"><span style="text-decoration:none;display:inline-block;margin-right:0.4em">&#9889;&#65039;</span>GivenEnergy &mdash; daily energy report</a>
-          <a href="givenergy/weekly/"><span style="text-decoration:none;display:inline-block;margin-right:0.4em">&#9889;&#65039;</span>GivenEnergy &mdash; weekly energy report</a>
+          <a href="givenergy/"><span style="text-decoration:none;display:inline-block;margin-right:0.4em">&#9889;&#65039;</span>Givenergy &mdash; daily energy report</a>
+          <a href="givenergy/weekly/"><span style="text-decoration:none;display:inline-block;margin-right:0.4em">&#9889;&#65039;</span>Givenergy &mdash; weekly energy report</a>
           </body></html>
           EOF
 

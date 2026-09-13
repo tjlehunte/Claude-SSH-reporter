@@ -1,4 +1,4 @@
-name: Weekly GivenEnergy report
+name: Weekly Givenergy report
 
 on:
   schedule:
@@ -26,13 +26,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Generate weekly report
-        run: python GivenEnergy/scripts/generate_weekly_report.py
+        run: python Givenergy/scripts/generate_weekly_report.py
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -d GivenEnergy/reports ]; then git add GivenEnergy/reports/; fi
-          git diff --cached --quiet || git commit -m "Weekly GivenEnergy report $(date -u +%Y-%m-%d)"
+          if [ -d Givenergy/reports ]; then git add Givenergy/reports/; fi
+          git diff --cached --quiet || git commit -m "Weekly Givenergy report $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
           git push

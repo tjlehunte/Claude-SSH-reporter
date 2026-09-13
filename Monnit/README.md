@@ -1,6 +1,6 @@
 # Monnit sensor reporter
 
-Automated daily/weekly reporting for a 16-room Monnit home sensor network (temperature, humidity, dewpoint, condensation risk, current/power draw). Part of the [Claude-SSH-reporter](../README.md) repo — see the root README for how this fits alongside the GivenEnergy pipeline.
+Automated daily/weekly reporting for a 16-room Monnit home sensor network (temperature, humidity, dewpoint, condensation risk, current/power draw). Part of the [Claude-SSH-reporter](../README.md) repo — see the root README for how this fits alongside the Givenergy pipeline.
 
 ## What it does
 

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Repo-wide operational notes. Pipeline-specific gotchas live in [`Monnit/CLAUDE.md`](Monnit/CLAUDE.md) and [`GivenEnergy/CLAUDE.md`](GivenEnergy/CLAUDE.md) — read this file first, then the relevant one.
+Repo-wide operational notes. Pipeline-specific gotchas live in [`Monnit/CLAUDE.md`](Monnit/CLAUDE.md) and [`Givenergy/CLAUDE.md`](Givenergy/CLAUDE.md) — read this file first, then the relevant one.
 
 ## Verifying changes
 
