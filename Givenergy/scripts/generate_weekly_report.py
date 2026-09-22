@@ -128,6 +128,18 @@ def main():
     # still name the last day actually covered, not that rollover day.
     last_day = window_df["start"].max()
 
+    report_label = f"{start.strftime('%Y-%m-%d')}_to_{last_day.strftime('%Y-%m-%d')}"
+    dated_path = WEEKLY_DIR / f"{report_label}.html"
+    stats_path = WEEKLY_DIR / f"{report_label}_stats.json"
+    if dated_path.exists() and stats_path.exists():
+        # A duplicate/delayed trigger for a week already reported on (e.g. the
+        # native cron firing late after a freshness-check routine already
+        # dispatched this run manually) must not re-run: regenerating would
+        # reset the AI-insights placeholder and destroy any narrative already
+        # filled in for this window.
+        print(f"[weekly] report for {report_label} already exists, skipping regeneration")
+        return
+
     totals = flow_totals(window_df)
     generation = float(total_generation(window_df).sum())
     consumption = float(total_consumption(window_df).sum())
@@ -180,8 +192,6 @@ def main():
         insights.append(f"Estimated net cost: £{net_bill:.2f}.")
     else:
         insights.append(f"Estimated net credit: £{abs(net_bill):.2f}.")
-
-    report_label = f"{start.strftime('%Y-%m-%d')}_to_{last_day.strftime('%Y-%m-%d')}"
 
     # Compact machine-readable stats, meant for a later local AI-insights
     # routine to turn into narrative commentary without re-reading full history.
@@ -244,11 +254,9 @@ ul {{ line-height: 1.6; }}
 """
 
     WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
-    dated_path = WEEKLY_DIR / f"{report_label}.html"
     dated_path.write_text(html, encoding="utf-8")
     LATEST_FILE.write_text(html, encoding="utf-8")
 
-    stats_path = WEEKLY_DIR / f"{report_label}_stats.json"
     stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
     (WEEKLY_DIR / "latest_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
 
