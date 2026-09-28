@@ -30,7 +30,7 @@ Monnit needed room-exclusion constants because it has a fleet of *interchangeabl
 
 ## Window end must come from the `end` column, not `start`
 
-The displayed "Window: ... to ..." line (and the weekly `window_end` stats field) uses `window_df["end"].max()`, not `window_df["start"].max()`. Using `start` understates the window by one interval — e.g. a full day would show "00:00 to 23:30" instead of "00:00 to 00:00 (next day)". The weekly report's `report_label`/filename deliberately does the opposite: it derives the last-day date from `window_df["start"].max()` (via the `last_day` variable), not `end`, because the last interval's `end` can roll into the next calendar day (the 23:30-00:00 interval) and would otherwise misname the file. Don't "fix" either of these to match the other — they're intentionally different for different reasons.
+The displayed "Window: ... to ..." line (and the weekly `window_end` stats field) uses `window_df["end"].max()`, not `window_df["start"].max()`. Using `start` understates the window by one interval — e.g. a full day would show "00:00 to 23:30" instead of "00:00 to 00:00 (next day)". The weekly report's `report_label`/filename doesn't come from the data at all: it is always the calendar week, Monday to Sunday (`week_start` to `week_end - 1 day`). The skip-if-already-generated check keys on the label, so a label derived from the data would change whenever a later run had more days than an earlier one, regenerating the week and wiping its AI insights. Don't "fix" the label to follow the data.
 
 ## Daily/weekly schedule times don't need to change for Octopus's 4pm rate publication
 

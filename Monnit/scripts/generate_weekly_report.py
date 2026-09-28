@@ -196,7 +196,14 @@ def main():
     start = window_df["MessageDate"].min() if not window_df.empty else week_start
     end = window_df["MessageDate"].max() if not window_df.empty else week_end
 
-    report_label = f"{start.strftime('%Y-%m-%d')}_to_{end.strftime('%Y-%m-%d')}"
+    # The label always names the calendar week (Monday to Sunday), never the
+    # dates of the first/last readings. The skip-if-exists check below keys
+    # on the label, so a label that moved with the data (e.g. a run missing
+    # Sunday, then a later one that has it) would regenerate the week and
+    # wipe the AI insights already written into it.
+    report_label = (
+        f"{week_start.strftime('%Y-%m-%d')}_to_{(week_end - timedelta(days=1)).strftime('%Y-%m-%d')}"
+    )
     dated_path = WEEKLY_DIR / f"{report_label}.html"
     stats_path = WEEKLY_DIR / f"{report_label}_stats.json"
     if dated_path.exists() and stats_path.exists():
