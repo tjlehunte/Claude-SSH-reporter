@@ -25,6 +25,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Pull in the latest readings first so the report covers all of Sunday
+      # even when this runs before the daily workflow (GitHub's cron often
+      # fires hours late). A failed fetch still lets the report run on
+      # whatever data is already committed.
+      - name: Fetch latest energy-flow readings
+        continue-on-error: true
+        env:
+          GIVENERGY_BEARER_TOKEN: ${{ secrets.GIVENERGY_BEARER }}
+        run: python Givenergy/scripts/fetch_and_append.py
+
+      - name: Fetch Octopus export rates
+        continue-on-error: true
+        run: python Givenergy/scripts/fetch_octopus_rates.py
+
+      - name: Fetch Octopus import rates
+        continue-on-error: true
+        run: python Givenergy/scripts/fetch_octopus_import_rates.py
+
       - name: Generate weekly report
         run: python Givenergy/scripts/generate_weekly_report.py
 
@@ -32,6 +50,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          for f in history.jsonl octopus_export_rates.jsonl octopus_import_rates.jsonl; do
+            if [ -f "Givenergy/data/$f" ]; then git add "Givenergy/data/$f"; fi
+          done
           if [ -d Givenergy/reports ]; then git add Givenergy/reports/; fi
           git diff --cached --quiet || git commit -m "Weekly Givenergy report $(date -u +%Y-%m-%d)"
           git pull --rebase origin main

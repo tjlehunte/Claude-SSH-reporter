@@ -25,6 +25,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Pull in the latest readings first so the report covers all of Sunday
+      # even when this runs before the daily workflow (GitHub's cron often
+      # fires hours late). The fetch fails when the sensors have gone quiet;
+      # the report still runs and publishes a "no data" notice in that case.
+      - name: Fetch latest sensor readings
+        continue-on-error: true
+        env:
+          MONNIT_API_KEY_ID: ${{ secrets.MONNIT_API_KEY_ID }}
+          MONNIT_API_SECRET_KEY: ${{ secrets.MONNIT_API_SECRET_KEY }}
+        run: python Monnit/scripts/fetch_and_append.py
+
       - name: Generate weekly report
         run: python Monnit/scripts/generate_weekly_report.py
 
@@ -32,7 +43,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Monnit/reports/
+          git add Monnit/data/history.jsonl Monnit/reports/
           git diff --cached --quiet || git commit -m "Weekly sensor report $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
           git push

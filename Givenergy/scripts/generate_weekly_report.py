@@ -2,7 +2,9 @@
 """Generate a self-contained weekly HTML report from data/history.jsonl.
 
 Reports on the most recently *completed* Monday-Sunday calendar week
-(relative to the latest data on hand, not wall-clock "now"): raw energy-flow
+(relative to wall-clock "now" in Europe/London, not the latest data on
+hand - anchoring on the data would misfire if this job runs before the
+day's fetch has landed): raw energy-flow
 time series, daily totals per flow, and self-consumption/self-sufficiency
 stats. Also writes a compact stats.json for a later AI-insights routine to
 turn into narrative commentary.
@@ -100,25 +102,70 @@ def plot_daily_totals(df):
     return fig, daily_totals
 
 
+def write_no_data_report(week_start, week_end, last_reading):
+    """Publish last week's report as an explicit "no data" notice.
+
+    The AI-insights div deliberately carries no AI_INSIGHTS_PLACEHOLDER
+    marker, so the insights routine has nothing to fill in for this week.
+    """
+    last_day = week_end - timedelta(days=1)
+    report_label = f"{week_start.strftime('%Y-%m-%d')}_to_{last_day.strftime('%Y-%m-%d')}"
+    dated_path = WEEKLY_DIR / f"{report_label}.html"
+    stats_path = WEEKLY_DIR / f"{report_label}_stats.json"
+    last_reading_str = last_reading.strftime("%Y-%m-%d %H:%M")
+    stats = {
+        "report_label": report_label,
+        "window_start": week_start.strftime("%Y-%m-%d %H:%M:%S"),
+        "window_end": week_end.strftime("%Y-%m-%d %H:%M:%S"),
+        "no_data": True,
+        "last_reading": last_reading.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Weekly Givenergy report - {report_label}</title>
+<style>
+body {{ font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }}
+h1 {{ margin-bottom: 0.2rem; }}
+.subtitle {{ color: #666; margin-top: 0; }}
+.no-data {{ background: #fdf4e7; border-left: 3px solid #c2793d; padding: 0.6rem 1rem; border-radius: 4px; }}
+</style></head>
+<body>
+<h1>Weekly energy report</h1>
+<p class="subtitle">Window: {week_start.strftime('%Y-%m-%d')} &ndash; {last_day.strftime('%Y-%m-%d')} (local time)</p>
+<div class="no-data"><p><strong>No Givenergy data was received for this week.</strong></p>
+<p>The last reading was at {last_reading_str} (local time). This report will return once data is coming in again.</p></div>
+<h2>AI insights</h2>
+<div id="ai-insights"><p><em>No AI insights this week &mdash; there was no energy data to analyse.</em></p></div>
+</body></html>
+"""
+    WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
+    dated_path.write_text(html, encoding="utf-8")
+    LATEST_FILE.write_text(html, encoding="utf-8")
+    stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    (WEEKLY_DIR / "latest_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    print(f"::warning title=No Givenergy data for {report_label}::Last reading was {last_reading_str}")
+    print(f"[weekly] no data for {report_label}; wrote no-data notice to {dated_path}")
+
+
 def main():
     df_wide = load_history_wide()
     if df_wide.empty:
         print("[weekly] no history yet, skipping report generation")
         return
 
-    latest_ts = df_wide["start"].max()
-    week_start, week_end = most_recent_complete_week(latest_ts)
+    # Anchor on wall-clock "now" (history timestamps are naive Europe/London
+    # local time), not the latest data on hand: if this runs before Monday's
+    # fetch has landed, the newest row is still in last week, which picked the
+    # week before that, hit the already-exists skip below, and never produced
+    # the new week at all (happened 2026-09-28).
+    now = pd.Timestamp.now(tz="Europe/London").tz_localize(None)
+    week_start, week_end = most_recent_complete_week(now)
     window_df = df_wide[(df_wide["start"] >= week_start) & (df_wide["start"] < week_end)]
 
     if window_df.empty:
-        # No fully-completed Mon-Sun week yet (pipeline just started) - fall
-        # back to whatever partial data exists in the current in-progress week.
-        print("[weekly] no completed calendar week yet; reporting partial current week instead")
-        week_start, week_end = week_end, week_end + timedelta(days=WINDOW_DAYS)
-        window_df = df_wide[(df_wide["start"] >= week_start) & (df_wide["start"] < week_end)]
-
-    if window_df.empty:
-        print("[weekly] no data available for any window; skipping report generation")
+        # Always report on last week, even with nothing to show, rather than
+        # falling back to the in-progress week.
+        write_no_data_report(week_start, week_end, df_wide["end"].max())
         return
 
     start = window_df["start"].min()

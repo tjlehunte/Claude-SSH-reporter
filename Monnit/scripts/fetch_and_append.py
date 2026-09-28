@@ -32,6 +32,7 @@ DEFAULT_LOOKBACK_HOURS = 36
 REQUEST_TIMEOUT = 15
 PROXY_TIMEOUT = 60  # Render free tier can be slow to wake from sleep
 CHUNK_DAYS = 5  # the gateway errors on overly-large SensorDataMessages date ranges
+STALE_AFTER_HOURS = 24  # no new readings for longer than this fails the run
 
 # Order of comma-separated fields Monnit returns for a humidity/temp combo sensor.
 METRIC_ORDER = ["Humidity", "Temperature", "Dewpoint", "gpkg", "Heat Index", "Wet Bulb"]
@@ -175,10 +176,33 @@ def fetch_gateway(since_utc):
     return list(per_timestamp.values())
 
 
+def fail(reason):
+    """Exit non-zero with `reason` surfaced by GitHub itself.
+
+    A `::error::` line becomes the run's annotation (shown in the failure
+    email and on the run page) and the step summary shows it at the top of
+    the run, so the reason is visible without digging through raw logs.
+    """
+    print(f"::error title=Monnit sensor fetch failed::{reason}")
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as f:
+            f.write(f"## Monnit sensor fetch failed\n\n{reason}\n")
+    sys.exit(1)
+
+
 def fetch_proxy():
     resp = requests.get(PROXY_URL, timeout=PROXY_TIMEOUT)
     resp.raise_for_status()
-    return resp.json()
+    payload = resp.json()
+    if not isinstance(payload, list):
+        # The proxy answers with {"error": [...], "message": [...]} when it has
+        # nothing to serve, rather than an empty list or an HTTP error.
+        message = payload.get("message") if isinstance(payload, dict) else payload
+        if isinstance(message, list):
+            message = " ".join(str(m) for m in message)
+        raise RuntimeError(f"Render proxy returned no data: {message!r}")
+    return payload
 
 
 def main():
@@ -200,15 +224,22 @@ def main():
         if not new_rows:
             raise RuntimeError("gateway returned zero rows for the requested window")
     except Exception as exc:
+        gateway_error = exc
         if backfill_hours:
             # The Render proxy only ever exposes a ~36h rolling window, so it
             # can't satisfy a multi-day backfill request - fail loudly instead
             # of silently returning a much smaller window than asked for.
-            print(f"[fetch] backfill requires the direct gateway; it was unavailable ({exc})", file=sys.stderr)
-            raise
+            fail(f"Backfill requires the direct gateway, which was unavailable: {exc}")
         print(f"[fetch] direct gateway unavailable ({exc}); falling back to Render proxy", file=sys.stderr)
         source = "proxy"
-        new_rows = fetch_proxy()
+        try:
+            new_rows = fetch_proxy()
+        except Exception as proxy_exc:
+            fail(
+                f"No new sensor readings since {watermark or 'the beginning'} UTC. "
+                f"Gateway: {gateway_error}. Proxy: {proxy_exc}. "
+                f"If the gateway is reachable but returning zero rows, check the gateway/sensors on site."
+            )
 
     # Merge by MessageDate (last write wins) and rewrite the whole file in
     # order, so a backfill's older rows land in the right place rather than
@@ -219,6 +250,17 @@ def main():
     all_rows = sorted(combined.values(), key=lambda r: r["MessageDate"])
 
     if added == 0:
+        # The sensors report every 10 minutes, so more than STALE_AFTER_HOURS
+        # with nothing new means the sensors or gateway have stopped - fail so
+        # it gets noticed, instead of "succeeding" silently every day.
+        if watermark:
+            age = datetime.utcnow() - datetime.strptime(watermark, "%Y-%m-%d %H:%M:%S")
+            if age > timedelta(hours=STALE_AFTER_HOURS):
+                fail(
+                    f"No new sensor readings for {age.days}d {age.seconds // 3600}h "
+                    f"(last reading {watermark} UTC, via {source}). The gateway is reachable "
+                    f"but returning no data - check the gateway/sensors on site."
+                )
         print(f"[fetch] source={source}: no new records since {watermark or 'beginning'}")
         return
 
