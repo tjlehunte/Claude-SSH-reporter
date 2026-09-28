@@ -14,7 +14,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: reporter-writes
+  # One queue per workflow: GitHub keeps only one *pending* run per group
+  # and cancels the rest, so a shared group let a late daily run silently
+  # cancel a waiting weekly one. The workflows commit disjoint files, so
+  # the pull --rebase before each push is enough to avoid push races.
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 jobs:

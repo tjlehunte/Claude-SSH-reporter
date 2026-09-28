@@ -9,7 +9,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: reporter-writes
+  # One queue per workflow: GitHub keeps only one *pending* run per group
+  # and cancels the rest, so a shared group let a late daily run silently
+  # cancel a waiting weekly one. The workflows commit disjoint files, so
+  # the pull --rebase before each push is enough to avoid push races.
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 jobs:
@@ -43,7 +47,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Monnit/data/history.jsonl Monnit/reports/
+          # Only the weekly report is committed here; the freshly fetched data
+          # is left for the daily workflow to commit, so the two never edit
+          # the same files. Discard it before the rebase, which needs a clean tree.
+          git add Monnit/reports/weekly/
           git diff --cached --quiet || git commit -m "Weekly sensor report $(date -u +%Y-%m-%d)"
+          git checkout -- .
           git pull --rebase origin main
           git push

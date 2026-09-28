@@ -9,7 +9,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: reporter-writes
+  # One queue per workflow: GitHub keeps only one *pending* run per group
+  # and cancels the rest, so a shared group let a late daily run silently
+  # cancel a waiting weekly one. The workflows commit disjoint files, so
+  # the pull --rebase before each push is enough to avoid push races.
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 jobs:
@@ -50,10 +54,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for f in history.jsonl octopus_export_rates.jsonl octopus_import_rates.jsonl; do
-            if [ -f "Givenergy/data/$f" ]; then git add "Givenergy/data/$f"; fi
-          done
-          if [ -d Givenergy/reports ]; then git add Givenergy/reports/; fi
+          # Only the weekly report is committed here; the freshly fetched data
+          # is left for the daily workflow to commit, so the two never edit
+          # the same files. Discard it before the rebase, which needs a clean tree.
+          if [ -d Givenergy/reports/weekly ]; then git add Givenergy/reports/weekly/; fi
           git diff --cached --quiet || git commit -m "Weekly Givenergy report $(date -u +%Y-%m-%d)"
+          git checkout -- .
           git pull --rebase origin main
           git push
