@@ -40,7 +40,9 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    # 'failure' too: a daily run whose fetch failed still commits a "no data"
+    # page (the job only fails to raise the alert), and that page must go live.
+    if: ${{ github.event_name != 'workflow_run' || contains(fromJSON('["success", "failure"]'), github.event.workflow_run.conclusion) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

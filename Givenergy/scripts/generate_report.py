@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Generate a self-contained daily HTML report from data/history.jsonl.
 
-Reports on the most recently *completed* local calendar day (relative to the
-latest data on hand, not wall-clock "now") - i.e. "yesterday" from the point
-of view of a run shortly after midnight. Produces a time-series chart of all
+Reports on the most recently *completed* local calendar day (relative to
+wall-clock "now" in Europe/London) - i.e. "yesterday". A day with no readings
+gets a "no data" notice instead of charts. Produces a time-series chart of all
 7 energy flows, a bar chart of the day's totals, and a short text summary.
 """
 import base64
@@ -16,6 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from billing_utils import (
     calculate_export_revenue,
@@ -121,25 +122,49 @@ def build_insights(df, totals, rates_df, import_rates_df):
     return lines
 
 
+def write_no_data_report(day_start, last_reading):
+    """Publish the day's report as an explicit "no data" notice."""
+    report_date = day_start.strftime("%Y-%m-%d")
+    last_reading_str = last_reading.strftime("%Y-%m-%d %H:%M")
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Givenergy report - {report_date}</title>
+<style>
+body {{ font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }}
+h1 {{ margin-bottom: 0.2rem; }}
+.subtitle {{ color: #666; margin-top: 0; }}
+.no-data {{ background: #fdf4e7; border-left: 3px solid #c2793d; padding: 0.6rem 1rem; border-radius: 4px; }}
+</style></head>
+<body>
+<h1>Daily energy report</h1>
+<p class="subtitle">Day: {report_date} (local time)</p>
+<div class="no-data"><p><strong>No Givenergy data was received for this day.</strong></p>
+<p>The last reading was at {last_reading_str} (local time). This report will return once data is coming in again.</p></div>
+</body></html>
+"""
+    DAILY_DIR.mkdir(parents=True, exist_ok=True)
+    dated_path = DAILY_DIR / f"{report_date}.html"
+    dated_path.write_text(html, encoding="utf-8")
+    LATEST_FILE.parent.mkdir(parents=True, exist_ok=True)
+    LATEST_FILE.write_text(html, encoding="utf-8")
+    print(f"[report] no data for {report_date}; wrote no-data notice to {dated_path}")
+
+
 def main():
     df_wide = load_history_wide()
     if df_wide.empty:
         print("[report] no history yet, skipping report generation")
         return
 
-    latest_ts = df_wide["start"].max()
-    start, end = most_recent_complete_day(latest_ts)
+    # Anchor on wall-clock "now" (history timestamps are naive Europe/London
+    # local time), not the latest data on hand - otherwise an outage just
+    # regenerates the last day that had data, every day.
+    now = pd.Timestamp.now(tz="Europe/London").tz_localize(None)
+    start, end = most_recent_complete_day(now)
     window_df = df_wide[(df_wide["start"] >= start) & (df_wide["start"] < end)]
 
     if window_df.empty:
-        # No fully-completed day yet (pipeline just started) - fall back to
-        # whatever partial data exists in the current in-progress day.
-        print("[report] no completed calendar day yet; reporting partial current day instead")
-        start, end = end, end + timedelta(days=1)
-        window_df = df_wide[(df_wide["start"] >= start) & (df_wide["start"] < end)]
-
-    if window_df.empty:
-        print("[report] no data available for any window; skipping report generation")
+        write_no_data_report(start, df_wide["end"].max())
         return
 
     totals = flow_totals(window_df)

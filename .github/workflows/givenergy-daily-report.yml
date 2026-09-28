@@ -52,10 +52,14 @@ jobs:
       - name: Fetch Octopus import rates
         run: python Givenergy/scripts/fetch_octopus_import_rates.py
 
+      # Still runs after a failed fetch, so a "no data" page gets published;
+      # the job as a whole still fails, which is what sends the alert email.
       - name: Generate daily report
+        if: ${{ !cancelled() }}
         run: python Givenergy/scripts/generate_report.py
 
       - name: Commit and push
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

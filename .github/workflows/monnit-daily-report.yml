@@ -41,10 +41,14 @@ jobs:
           BACKFILL_HOURS: ${{ github.event.inputs.backfill_hours }}
         run: python Monnit/scripts/fetch_and_append.py
 
+      # Still runs after a failed fetch, so a "no data" page gets published;
+      # the job as a whole still fails, which is what sends the alert email.
       - name: Generate daily report
+        if: ${{ !cancelled() }}
         run: python Monnit/scripts/generate_report.py
 
       - name: Commit and push
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

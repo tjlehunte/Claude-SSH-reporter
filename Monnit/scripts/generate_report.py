@@ -2,15 +2,15 @@
 """Generate a self-contained daily HTML report from data/history.jsonl.
 
 Reports on the most recently *completed* UTC calendar day (00:00-23:50,
-relative to the latest data on hand, not wall-clock "now") - i.e. "yesterday"
-from the point of view of a run shortly after midnight. Produces three charts
+relative to wall-clock "now") - i.e. "yesterday". A day with no readings
+gets a "no data" notice instead of charts. Produces three charts
 (temperature over time, latest humidity per room, latest condensation-risk
 margin per room) plus a short text summary, and writes
 reports/daily/<date>.html and reports/latest.html.
 """
 import base64
 import io
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import matplotlib
@@ -18,6 +18,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from sensor_utils import (
     condensation_margin,
@@ -135,22 +136,49 @@ def build_insights(window_df, latest_temp, latest_humidity, latest_margin, rooms
     return lines
 
 
+def write_no_data_report(day_start, last_reading):
+    """Publish the day's report as an explicit "no data" notice."""
+    report_date = day_start.strftime("%Y-%m-%d")
+    last_reading_str = last_reading.strftime("%Y-%m-%d %H:%M")
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Sensor report - {report_date}</title>
+<style>
+body {{ font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }}
+h1 {{ margin-bottom: 0.2rem; }}
+.subtitle {{ color: #666; margin-top: 0; }}
+.no-data {{ background: #fdf4e7; border-left: 3px solid #c2793d; padding: 0.6rem 1rem; border-radius: 4px; }}
+</style></head>
+<body>
+<h1>Daily sensor report</h1>
+<p class="subtitle">Day: {report_date} (UTC)</p>
+<div class="no-data"><p><strong>No sensor data was received for this day.</strong></p>
+<p>The last reading from the Salford Smart Home sensors was at {last_reading_str} UTC. This report will return once the sensors are reporting again.</p></div>
+</body></html>
+"""
+    DAILY_DIR.mkdir(parents=True, exist_ok=True)
+    dated_path = DAILY_DIR / f"{report_date}.html"
+    dated_path.write_text(html, encoding="utf-8")
+    LATEST_FILE.parent.mkdir(parents=True, exist_ok=True)
+    LATEST_FILE.write_text(html, encoding="utf-8")
+    print(f"[report] no data for {report_date}; wrote no-data notice to {dated_path}")
+
+
 def main():
     df_wide = load_history_wide()
     if df_wide.empty:
         print("[report] no history yet, skipping report generation")
         return
 
-    latest_ts = df_wide["MessageDate"].max()
-    start, end = most_recent_complete_day(latest_ts)
+    # Anchor on wall-clock "now", not the latest data on hand - otherwise a
+    # sensor outage just regenerates the last day that had data, every day.
+    now = pd.Timestamp(datetime.now(timezone.utc)).tz_localize(None)
+    start, end = most_recent_complete_day(now)
     window_df = df_wide[(df_wide["MessageDate"] >= start) & (df_wide["MessageDate"] < end)]
 
     if window_df.empty:
-        # No fully-completed day yet (pipeline just started) - fall back to
-        # whatever partial data exists in the current in-progress day.
-        print("[report] no completed calendar day yet; reporting partial current day instead")
-        start, end = end, end + timedelta(days=1)
-        window_df = df_wide[(df_wide["MessageDate"] >= start) & (df_wide["MessageDate"] < end)]
+        write_no_data_report(start, df_wide["MessageDate"].max())
+        return
 
     long_df = to_long(window_df)
     rooms = room_order(long_df)
