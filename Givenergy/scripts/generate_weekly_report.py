@@ -102,6 +102,13 @@ def plot_daily_totals(df):
     return fig, daily_totals
 
 
+def is_no_data_report(stats_path):
+    try:
+        return bool(json.loads(stats_path.read_text(encoding="utf-8")).get("no_data"))
+    except (OSError, ValueError):
+        return False
+
+
 def write_no_data_report(week_start, week_end, last_reading):
     """Publish last week's report as an explicit "no data" notice.
 
@@ -181,12 +188,13 @@ def main():
     )
     dated_path = WEEKLY_DIR / f"{report_label}.html"
     stats_path = WEEKLY_DIR / f"{report_label}_stats.json"
-    if dated_path.exists() and stats_path.exists():
+    if dated_path.exists() and stats_path.exists() and not is_no_data_report(stats_path):
         # A duplicate/delayed trigger for a week already reported on (e.g. the
         # native cron firing late after a freshness-check routine already
         # dispatched this run manually) must not re-run: regenerating would
         # reset the AI-insights placeholder and destroy any narrative already
-        # filled in for this window.
+        # filled in for this window. A "no data" notice has no insights to
+        # lose, so it is always replaced once data for the week turns up.
         print(f"[weekly] report for {report_label} already exists, skipping regeneration")
         return
 
