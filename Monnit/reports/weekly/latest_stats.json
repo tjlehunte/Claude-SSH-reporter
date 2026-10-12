@@ -1,7 +1,7 @@
 {
-  "report_label": "2026-09-28_to_2026-10-04",
-  "window_start": "2026-09-28 00:00:00",
-  "window_end": "2026-10-04 23:50:00",
+  "report_label": "2026-10-05_to_2026-10-11",
+  "window_start": "2026-10-05 00:00:00",
+  "window_end": "2026-10-11 23:50:00",
   "rooms": [
     "Bed 1",
     "Bed 2",
@@ -21,119 +21,119 @@
     "Outside"
   ],
   "avg_temperature_by_room": {
-    "Bed 1": 20.8,
-    "Bed 2": 20.3,
-    "Bed 3": 21.9,
-    "Dining": 20.6,
-    "Ensuite": 20.6,
-    "Hall": 20.2,
-    "Kitchen": 20.5,
-    "Landing": 20.7,
-    "Loft 1": 18.3,
-    "Loft 2": 17.9,
-    "Lounge": 20.4,
-    "Network": 26.7,
-    "Outside": 15.0,
-    "Study": 20.5,
-    "Toilet down": 20.7,
-    "Toilet up": 20.5
+    "Bed 1": 19.0,
+    "Bed 2": 18.7,
+    "Bed 3": 19.4,
+    "Dining": 19.3,
+    "Ensuite": 18.6,
+    "Hall": 18.6,
+    "Kitchen": 19.0,
+    "Landing": 18.9,
+    "Loft 1": 15.1,
+    "Loft 2": 14.8,
+    "Lounge": 18.7,
+    "Network": 21.4,
+    "Outside": 12.9,
+    "Study": 18.7,
+    "Toilet down": 19.2,
+    "Toilet up": 18.7
   },
   "avg_humidity_by_room": {
-    "Bed 1": 57.9,
-    "Bed 2": 59.3,
-    "Bed 3": 56.4,
+    "Bed 1": 59.1,
+    "Bed 2": 59.6,
+    "Bed 3": 59.2,
     "Dining": 58.5,
-    "Ensuite": 58.9,
-    "Hall": 60.8,
-    "Kitchen": 59.5,
-    "Landing": 58.3,
-    "Loft 1": 62.7,
-    "Loft 2": 63.9,
-    "Lounge": 60.3,
-    "Network": 42.3,
-    "Outside": 78.3,
-    "Study": 58.5,
-    "Toilet down": 57.7,
-    "Toilet up": 59.3
+    "Ensuite": 60.5,
+    "Hall": 61.4,
+    "Kitchen": 60.4,
+    "Landing": 59.4,
+    "Loft 1": 68.0,
+    "Loft 2": 69.0,
+    "Lounge": 61.7,
+    "Network": 50.5,
+    "Outside": 82.7,
+    "Study": 59.7,
+    "Toilet down": 58.2,
+    "Toilet up": 60.2
   },
   "worst_condensation_margin_by_room": {
-    "Bed 1": 7.2,
-    "Bed 2": 7.1,
-    "Bed 3": 8.0,
-    "Dining": 7.2,
+    "Bed 1": 6.0,
+    "Bed 2": 6.1,
+    "Bed 3": 5.9,
+    "Dining": 6.3,
     "Ensuite": 4.7,
-    "Hall": 6.5,
-    "Kitchen": 6.7,
-    "Landing": 7.3,
-    "Loft 1": 3.8,
-    "Loft 2": 3.8,
-    "Lounge": 6.6,
-    "Network": 12.5,
-    "Outside": 1.5,
-    "Study": 6.3,
-    "Toilet down": 7.2,
-    "Toilet up": 5.1
+    "Hall": 5.3,
+    "Kitchen": 5.1,
+    "Landing": 6.0,
+    "Loft 1": 2.7,
+    "Loft 2": 2.7,
+    "Lounge": 5.9,
+    "Network": 8.8,
+    "Outside": 0.1,
+    "Study": 5.4,
+    "Toilet down": 6.1,
+    "Toilet up": 4.2
   },
-  "mean_temperature_c": 21.1,
-  "mean_humidity_pct": 57.5,
+  "mean_temperature_c": 19.1,
+  "mean_humidity_pct": 59.1,
   "daily_mean_temperature_indoor": [
     {
-      "date": "2026-09-28",
+      "date": "2026-10-05",
       "value": 20.2
     },
     {
-      "date": "2026-09-29",
-      "value": 20.4
+      "date": "2026-10-06",
+      "value": 21.2
     },
     {
-      "date": "2026-09-30",
-      "value": 22.1
+      "date": "2026-10-07",
+      "value": 20.7
     },
     {
-      "date": "2026-10-01",
-      "value": 22.3
+      "date": "2026-10-08",
+      "value": 18.7
     },
     {
-      "date": "2026-10-02",
-      "value": 21.5
+      "date": "2026-10-09",
+      "value": 18.2
     },
     {
-      "date": "2026-10-03",
-      "value": 21.4
+      "date": "2026-10-10",
+      "value": 17.8
     },
     {
-      "date": "2026-10-04",
-      "value": 20.0
+      "date": "2026-10-11",
+      "value": 16.9
     }
   ],
   "daily_mean_humidity_indoor": [
     {
-      "date": "2026-09-28",
-      "value": 57.0
+      "date": "2026-10-05",
+      "value": 59.6
     },
     {
-      "date": "2026-09-29",
-      "value": 57.8
+      "date": "2026-10-06",
+      "value": 63.2
     },
     {
-      "date": "2026-09-30",
-      "value": 60.9
+      "date": "2026-10-07",
+      "value": 59.7
     },
     {
-      "date": "2026-10-01",
-      "value": 57.6
+      "date": "2026-10-08",
+      "value": 56.3
     },
     {
-      "date": "2026-10-02",
-      "value": 57.1
+      "date": "2026-10-09",
+      "value": 59.2
     },
     {
-      "date": "2026-10-03",
-      "value": 56.9
+      "date": "2026-10-10",
+      "value": 58.3
     },
     {
-      "date": "2026-10-04",
-      "value": 55.5
+      "date": "2026-10-11",
+      "value": 57.5
     }
   ],
   "comfort_standard": {
@@ -147,246 +147,256 @@
   },
   "thermal_comfort_ranking": [
     {
-      "room": "Landing",
-      "avg_temperature": 20.7,
-      "target_temperature": 21.0,
-      "avg_humidity": 58.3,
-      "comfort_score": 0.25
-    },
-    {
-      "room": "Toilet down",
-      "avg_temperature": 20.7,
-      "target_temperature": 21.0,
-      "avg_humidity": 57.7,
-      "comfort_score": 0.31
-    },
-    {
-      "room": "Dining",
-      "avg_temperature": 20.6,
-      "target_temperature": 21.0,
-      "avg_humidity": 58.5,
-      "comfort_score": 0.36
-    },
-    {
-      "room": "Ensuite",
-      "avg_temperature": 20.6,
-      "target_temperature": 21.0,
-      "avg_humidity": 58.9,
-      "comfort_score": 0.44
-    },
-    {
-      "room": "Kitchen",
-      "avg_temperature": 20.5,
-      "target_temperature": 21.0,
-      "avg_humidity": 59.5,
-      "comfort_score": 0.45
-    },
-    {
-      "room": "Study",
-      "avg_temperature": 20.5,
-      "target_temperature": 21.0,
-      "avg_humidity": 58.5,
-      "comfort_score": 0.48
-    },
-    {
-      "room": "Toilet up",
-      "avg_temperature": 20.5,
-      "target_temperature": 21.0,
-      "avg_humidity": 59.3,
-      "comfort_score": 0.55
-    },
-    {
-      "room": "Lounge",
-      "avg_temperature": 20.4,
-      "target_temperature": 21.0,
-      "avg_humidity": 60.3,
-      "comfort_score": 0.97
-    },
-    {
-      "room": "Hall",
-      "avg_temperature": 20.2,
-      "target_temperature": 21.0,
-      "avg_humidity": 60.8,
-      "comfort_score": 1.6
-    },
-    {
       "room": "Bed 2",
-      "avg_temperature": 20.3,
+      "avg_temperature": 18.7,
       "target_temperature": 18.0,
-      "avg_humidity": 59.3,
-      "comfort_score": 2.33
+      "avg_humidity": 59.6,
+      "comfort_score": 0.72
     },
     {
       "room": "Bed 1",
-      "avg_temperature": 20.8,
+      "avg_temperature": 19.0,
       "target_temperature": 18.0,
-      "avg_humidity": 57.9,
-      "comfort_score": 2.82
+      "avg_humidity": 59.1,
+      "comfort_score": 0.98
     },
     {
       "room": "Bed 3",
-      "avg_temperature": 21.9,
+      "avg_temperature": 19.4,
       "target_temperature": 18.0,
-      "avg_humidity": 56.4,
-      "comfort_score": 3.95
+      "avg_humidity": 59.2,
+      "comfort_score": 1.43
+    },
+    {
+      "room": "Dining",
+      "avg_temperature": 19.3,
+      "target_temperature": 21.0,
+      "avg_humidity": 58.5,
+      "comfort_score": 1.72
+    },
+    {
+      "room": "Toilet down",
+      "avg_temperature": 19.2,
+      "target_temperature": 21.0,
+      "avg_humidity": 58.2,
+      "comfort_score": 1.77
+    },
+    {
+      "room": "Landing",
+      "avg_temperature": 18.9,
+      "target_temperature": 21.0,
+      "avg_humidity": 59.4,
+      "comfort_score": 2.06
+    },
+    {
+      "room": "Study",
+      "avg_temperature": 18.7,
+      "target_temperature": 21.0,
+      "avg_humidity": 59.7,
+      "comfort_score": 2.33
+    },
+    {
+      "room": "Kitchen",
+      "avg_temperature": 19.0,
+      "target_temperature": 21.0,
+      "avg_humidity": 60.4,
+      "comfort_score": 2.43
+    },
+    {
+      "room": "Toilet up",
+      "avg_temperature": 18.7,
+      "target_temperature": 21.0,
+      "avg_humidity": 60.2,
+      "comfort_score": 2.56
+    },
+    {
+      "room": "Ensuite",
+      "avg_temperature": 18.6,
+      "target_temperature": 21.0,
+      "avg_humidity": 60.5,
+      "comfort_score": 2.84
+    },
+    {
+      "room": "Hall",
+      "avg_temperature": 18.6,
+      "target_temperature": 21.0,
+      "avg_humidity": 61.4,
+      "comfort_score": 3.81
+    },
+    {
+      "room": "Lounge",
+      "avg_temperature": 18.7,
+      "target_temperature": 21.0,
+      "avg_humidity": 61.7,
+      "comfort_score": 4.0
     }
   ],
   "temperature_swing_events": [
     {
-      "room": "Lounge",
-      "change": -1.3,
+      "room": "Network",
+      "change": -1.4,
       "direction": "drop",
-      "from_time": "2026-10-01 12:20:00",
-      "from_value": 23.0,
-      "to_time": "2026-10-01 12:50:00",
-      "to_value": 21.8
+      "from_time": "2026-10-05 08:20:00",
+      "from_value": 25.2,
+      "to_time": "2026-10-05 08:50:00",
+      "to_value": 23.9
     },
     {
-      "room": "Toilet down",
+      "room": "Bed 1",
       "change": 1.3,
       "direction": "rise",
-      "from_time": "2026-09-28 15:00:00",
-      "from_value": 20.9,
-      "to_time": "2026-09-28 15:30:00",
-      "to_value": 22.2
+      "from_time": "2026-10-06 09:50:00",
+      "from_value": 21.4,
+      "to_time": "2026-10-06 10:20:00",
+      "to_value": 22.7
+    },
+    {
+      "room": "Study",
+      "change": 1.3,
+      "direction": "rise",
+      "from_time": "2026-10-06 09:20:00",
+      "from_value": 20.2,
+      "to_time": "2026-10-06 09:50:00",
+      "to_value": 21.4
+    },
+    {
+      "room": "Hall",
+      "change": 1.0,
+      "direction": "rise",
+      "from_time": "2026-10-06 09:40:00",
+      "from_value": 19.7,
+      "to_time": "2026-10-06 10:10:00",
+      "to_value": 20.7
     }
   ],
   "humidity_swing_events": [
     {
-      "room": "Ensuite",
-      "change": 14.3,
-      "direction": "rise",
-      "from_time": "2026-09-28 08:30:00",
-      "from_value": 59.4,
-      "to_time": "2026-09-28 09:00:00",
-      "to_value": 73.7
-    },
-    {
       "room": "Toilet up",
-      "change": 13.2,
+      "change": 9.5,
       "direction": "rise",
-      "from_time": "2026-09-28 08:10:00",
-      "from_value": 59.0,
-      "to_time": "2026-09-28 08:40:00",
-      "to_value": 72.2
+      "from_time": "2026-10-06 09:20:00",
+      "from_value": 64.1,
+      "to_time": "2026-10-06 09:50:00",
+      "to_value": 73.6
     },
     {
-      "room": "Dining",
-      "change": -10.5,
-      "direction": "drop",
-      "from_time": "2026-10-01 12:20:00",
+      "room": "Ensuite",
+      "change": 8.7,
+      "direction": "rise",
+      "from_time": "2026-10-05 08:20:00",
       "from_value": 60.1,
-      "to_time": "2026-10-01 12:50:00",
-      "to_value": 49.5
-    },
-    {
-      "room": "Hall",
-      "change": -10.5,
-      "direction": "drop",
-      "from_time": "2026-10-01 12:20:00",
-      "from_value": 61.5,
-      "to_time": "2026-10-01 12:50:00",
-      "to_value": 51.0
-    },
-    {
-      "room": "Lounge",
-      "change": -9.2,
-      "direction": "drop",
-      "from_time": "2026-10-01 12:20:00",
-      "from_value": 58.6,
-      "to_time": "2026-10-01 12:50:00",
-      "to_value": 49.4
-    },
-    {
-      "room": "Toilet down",
-      "change": -8.3,
-      "direction": "drop",
-      "from_time": "2026-10-01 12:30:00",
-      "from_value": 59.4,
-      "to_time": "2026-10-01 13:00:00",
-      "to_value": 51.1
+      "to_time": "2026-10-05 08:50:00",
+      "to_value": 68.9
     },
     {
       "room": "Kitchen",
-      "change": -8.1,
-      "direction": "drop",
-      "from_time": "2026-10-01 12:20:00",
-      "from_value": 59.4,
-      "to_time": "2026-10-01 12:50:00",
-      "to_value": 51.3
+      "change": 6.0,
+      "direction": "rise",
+      "from_time": "2026-10-06 09:10:00",
+      "from_value": 66.2,
+      "to_time": "2026-10-06 09:40:00",
+      "to_value": 72.2
+    },
+    {
+      "room": "Bed 2",
+      "change": 5.5,
+      "direction": "rise",
+      "from_time": "2026-10-06 09:10:00",
+      "from_value": 62.4,
+      "to_time": "2026-10-06 09:40:00",
+      "to_value": 67.9
+    },
+    {
+      "room": "Ensuite",
+      "change": 5.5,
+      "direction": "rise",
+      "from_time": "2026-10-06 09:30:00",
+      "from_value": 65.4,
+      "to_time": "2026-10-06 10:00:00",
+      "to_value": 71.0
     },
     {
       "room": "Study",
-      "change": 5.9,
+      "change": 5.5,
       "direction": "rise",
-      "from_time": "2026-09-28 08:00:00",
-      "from_value": 58.3,
-      "to_time": "2026-09-28 08:30:00",
-      "to_value": 64.2
+      "from_time": "2026-10-06 09:10:00",
+      "from_value": 63.7,
+      "to_time": "2026-10-06 09:40:00",
+      "to_value": 69.2
+    },
+    {
+      "room": "Landing",
+      "change": 5.1,
+      "direction": "rise",
+      "from_time": "2026-10-06 09:10:00",
+      "from_value": 63.0,
+      "to_time": "2026-10-06 09:40:00",
+      "to_value": 68.1
     }
   ],
   "collective_temperature_events": [],
   "collective_humidity_events": [
     {
-      "time": "2026-10-01 12:00:00",
-      "direction": "drop",
+      "time": "2026-10-06 09:00:00",
+      "direction": "rise",
       "rooms": [
-        "Dining",
-        "Hall",
+        "Bed 2",
         "Kitchen",
-        "Lounge"
+        "Landing",
+        "Study",
+        "Toilet up"
       ],
-      "room_count": 4,
-      "avg_change": -9.6,
-      "largest_change": -10.5
+      "room_count": 5,
+      "avg_change": 6.3,
+      "largest_change": 9.5
     }
   ],
   "insights": [
-    "Peak temperature this week: 23.8\u00b0C in Bed 3 on 2026-09-30 17:50.",
-    "Lowest temperature this week: 18.1\u00b0C in Bed 2 on 2026-09-28 08:10.",
-    "Peak humidity this week: 73.7% in Ensuite on 2026-09-28 09:00.",
-    "Lowest humidity this week: 49.4% in Lounge on 2026-10-01 12:50.",
-    "Mean temperature in the SSH this week was 21.1\u00b0C.",
-    "Mean humidity in the SSH this week was 57.5%.",
-    "Amp-hours consumed this week: 368.96 Ah."
+    "Peak temperature this week: 22.8\u00b0C in Bed 3 on 2026-10-06 10:40.",
+    "Lowest temperature this week: 15.7\u00b0C in Ensuite on 2026-10-11 09:50.",
+    "Peak humidity this week: 76.5% in Toilet up on 2026-10-06 10:00.",
+    "Lowest humidity this week: 53.5% in Toilet down on 2026-10-11 16:20.",
+    "Mean temperature in the SSH this week was 19.1\u00b0C.",
+    "Mean humidity in the SSH this week was 59.1%.",
+    "Amp-hours consumed this week: 364.26 Ah."
   ],
   "best_comfort_room": {
-    "room": "Landing",
-    "avg_temperature": 20.7,
-    "target_temperature": 21.0,
-    "avg_humidity": 58.3,
-    "comfort_score": 0.25
+    "room": "Bed 2",
+    "avg_temperature": 18.7,
+    "target_temperature": 18.0,
+    "avg_humidity": 59.6,
+    "comfort_score": 0.72
   },
   "worst_comfort_room": {
-    "room": "Bed 3",
-    "avg_temperature": 21.9,
-    "target_temperature": 18.0,
-    "avg_humidity": 56.4,
-    "comfort_score": 3.95
+    "room": "Lounge",
+    "avg_temperature": 18.7,
+    "target_temperature": 21.0,
+    "avg_humidity": 61.7,
+    "comfort_score": 4.0
   },
   "peak_temperature": {
-    "value": 23.8,
+    "value": 22.8,
     "room": "Bed 3",
-    "timestamp": "2026-09-30 17:50:00"
+    "timestamp": "2026-10-06 10:40:00"
   },
   "lowest_temperature": {
-    "value": 18.1,
-    "room": "Bed 2",
-    "timestamp": "2026-09-28 08:10:00"
+    "value": 15.7,
+    "room": "Ensuite",
+    "timestamp": "2026-10-11 09:50:00"
   },
   "peak_humidity": {
-    "value": 73.7,
-    "room": "Ensuite",
-    "timestamp": "2026-09-28 09:00:00"
+    "value": 76.5,
+    "room": "Toilet up",
+    "timestamp": "2026-10-06 10:00:00"
   },
   "lowest_humidity": {
-    "value": 49.4,
-    "room": "Lounge",
-    "timestamp": "2026-10-01 12:50:00"
+    "value": 53.5,
+    "room": "Toilet down",
+    "timestamp": "2026-10-11 16:20:00"
   },
   "tightest_condensation_margin": {
-    "value": 3.8,
-    "room": "Loft 1"
+    "value": 2.7,
+    "room": "Loft 2"
   },
-  "amp_hours_used": 368.96
+  "amp_hours_used": 364.26
 }
