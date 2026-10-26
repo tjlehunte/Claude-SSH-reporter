@@ -1,0 +1,74 @@
+{
+  "report_label": "2026-10-19_to_2026-10-25",
+  "window_start": "2026-10-19 00:00:00",
+  "window_end": "2026-10-26 00:00:00",
+  "flow_totals_kwh": {
+    "PV to Home": 14.2,
+    "PV to Battery": 8.9,
+    "PV to Grid": 0.0,
+    "Grid to Home": 23.7,
+    "Grid to Battery": 38.6,
+    "Battery to Home": 46.7,
+    "Battery to Grid": 2.7
+  },
+  "total_generation_kwh": 23.1,
+  "total_consumption_kwh": 84.6,
+  "total_import_kwh": 62.3,
+  "total_export_kwh": 2.7,
+  "self_consumption_pct": 100.0,
+  "self_sufficiency_pct": 26.36,
+  "estimated_import_cost_gbp": 18.41,
+  "estimated_export_revenue_gbp": 0.8,
+  "estimated_net_bill_gbp": 17.61,
+  "export_rate_coverage_pct": 99.4,
+  "import_rate_coverage_pct": 100.0,
+  "daily_generation_kwh": [
+    {
+      "date": "2026-10-19",
+      "value": 5.2
+    },
+    {
+      "date": "2026-10-20",
+      "value": 1.1
+    },
+    {
+      "date": "2026-10-21",
+      "value": 2.2
+    },
+    {
+      "date": "2026-10-22",
+      "value": 5.8
+    },
+    {
+      "date": "2026-10-23",
+      "value": 2.3
+    },
+    {
+      "date": "2026-10-24",
+      "value": 1.2
+    },
+    {
+      "date": "2026-10-25",
+      "value": 5.3
+    }
+  ],
+  "insights": [
+    "Total solar generated this week: 23.1 kWh.",
+    "Total home consumption this week: 84.6 kWh.",
+    "Imported from grid: 62.3 kWh; exported to grid: 2.7 kWh.",
+    "Self-consumption: 100% of generated solar was used on-site rather than exported.",
+    "Self-sufficiency: 26.36% of home consumption was met without drawing from the grid.",
+    "Best generation day: 2026-10-22 (5.8 kWh); lowest: 2026-10-20 (1.1 kWh).",
+    "Estimated import cost: \u00a318.41 (live Flexible Octopus rate + standing charge).",
+    "Estimated export revenue: \u00a30.80 at your Agile Outgoing rate.",
+    "Estimated net cost: \u00a317.61."
+  ],
+  "best_generation_day": {
+    "date": "2026-10-22",
+    "value": 5.8
+  },
+  "worst_generation_day": {
+    "date": "2026-10-20",
+    "value": 1.1
+  }
+}
