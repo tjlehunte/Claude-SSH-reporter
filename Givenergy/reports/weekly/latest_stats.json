@@ -1,74 +1,74 @@
 {
-  "report_label": "2026-10-26_to_2026-11-01",
-  "window_start": "2026-10-26 00:00:00",
-  "window_end": "2026-11-02 00:00:00",
+  "report_label": "2026-11-02_to_2026-11-08",
+  "window_start": "2026-11-02 00:00:00",
+  "window_end": "2026-11-09 00:00:00",
   "flow_totals_kwh": {
-    "PV to Home": 19.7,
-    "PV to Battery": 6.2,
+    "PV to Home": 18.4,
+    "PV to Battery": 2.1,
     "PV to Grid": 0.0,
-    "Grid to Home": 24.8,
-    "Grid to Battery": 47.0,
-    "Battery to Home": 55.4,
-    "Battery to Grid": 2.3
+    "Grid to Home": 52.0,
+    "Grid to Battery": 66.1,
+    "Battery to Home": 68.6,
+    "Battery to Grid": 0.0
   },
-  "total_generation_kwh": 25.9,
-  "total_consumption_kwh": 99.9,
-  "total_import_kwh": 71.8,
-  "total_export_kwh": 2.3,
+  "total_generation_kwh": 20.5,
+  "total_consumption_kwh": 139.0,
+  "total_import_kwh": 118.1,
+  "total_export_kwh": 0.0,
   "self_consumption_pct": 100.0,
-  "self_sufficiency_pct": 28.13,
-  "estimated_import_cost_gbp": 22.11,
-  "estimated_export_revenue_gbp": 0.71,
-  "estimated_net_bill_gbp": 21.4,
+  "self_sufficiency_pct": 15.04,
+  "estimated_import_cost_gbp": 34.38,
+  "estimated_export_revenue_gbp": 0.0,
+  "estimated_net_bill_gbp": 34.38,
   "export_rate_coverage_pct": 100.0,
   "import_rate_coverage_pct": 100.0,
   "daily_generation_kwh": [
     {
-      "date": "2026-10-26",
+      "date": "2026-11-02",
+      "value": 3.4
+    },
+    {
+      "date": "2026-11-03",
+      "value": 3.7
+    },
+    {
+      "date": "2026-11-04",
+      "value": 4.0
+    },
+    {
+      "date": "2026-11-05",
+      "value": 1.7
+    },
+    {
+      "date": "2026-11-06",
       "value": 1.6
     },
     {
-      "date": "2026-10-27",
-      "value": 3.8
+      "date": "2026-11-07",
+      "value": 4.1
     },
     {
-      "date": "2026-10-28",
-      "value": 2.7
-    },
-    {
-      "date": "2026-10-29",
-      "value": 3.0
-    },
-    {
-      "date": "2026-10-30",
-      "value": 5.9
-    },
-    {
-      "date": "2026-10-31",
-      "value": 6.8
-    },
-    {
-      "date": "2026-11-01",
-      "value": 2.1
+      "date": "2026-11-08",
+      "value": 2.0
     }
   ],
   "insights": [
-    "Total solar generated this week: 25.9 kWh.",
-    "Total home consumption this week: 99.9 kWh.",
-    "Imported from grid: 71.8 kWh; exported to grid: 2.3 kWh.",
+    "Total solar generated this week: 20.5 kWh.",
+    "Total home consumption this week: 139.0 kWh.",
+    "Imported from grid: 118.1 kWh; exported to grid: 0.0 kWh.",
     "Self-consumption: 100% of generated solar was used on-site rather than exported.",
-    "Self-sufficiency: 28.13% of home consumption was met without drawing from the grid.",
-    "Best generation day: 2026-10-31 (6.8 kWh); lowest: 2026-10-26 (1.6 kWh).",
-    "Estimated import cost: \u00a322.11 (live Flexible Octopus rate + standing charge).",
-    "Estimated export revenue: \u00a30.71 at your Agile Outgoing rate.",
-    "Estimated net cost: \u00a321.40."
+    "Self-sufficiency: 15.04% of home consumption was met without drawing from the grid.",
+    "Best generation day: 2026-11-07 (4.1 kWh); lowest: 2026-11-06 (1.6 kWh).",
+    "Estimated import cost: \u00a334.38 (live Flexible Octopus rate + standing charge).",
+    "Estimated export revenue: \u00a30.00 at your Agile Outgoing rate.",
+    "Estimated net cost: \u00a334.38."
   ],
   "best_generation_day": {
-    "date": "2026-10-31",
-    "value": 6.8
+    "date": "2026-11-07",
+    "value": 4.1
   },
   "worst_generation_day": {
-    "date": "2026-10-26",
+    "date": "2026-11-06",
     "value": 1.6
   }
 }
