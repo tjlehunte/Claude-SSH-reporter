@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Operational notes specific to the Givenergy pipeline — not a description of what the code does (see README.md and the scripts themselves for that), just the gotchas that aren't obvious from reading the code. See [`../CLAUDE.md`](../CLAUDE.md) for repo-wide notes (verifying changes via workflow_dispatch, the Windows git-push gotcha, the shared concurrency group) — this file only covers what's Givenergy-specific.
+Operational notes specific to the Givenergy pipeline — not a description of what the code does (see README.md and the scripts themselves for that), just the gotchas that aren't obvious from reading the code. See [`../CLAUDE.md`](../CLAUDE.md) for repo-wide notes (verifying changes via workflow_dispatch, the Windows git-push gotcha, push concurrency and retries) — this file only covers what's Givenergy-specific.
 
 ## Timestamps are local time, not UTC
 

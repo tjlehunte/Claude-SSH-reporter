@@ -17,7 +17,7 @@ concurrency:
   # One queue per workflow: GitHub keeps only one *pending* run per group
   # and cancels the rest, so a shared group let a late daily run silently
   # cancel a waiting weekly one. The workflows commit disjoint files, so
-  # the pull --rebase before each push is enough to avoid push races.
+  # the push step retries pull --rebase + push to survive push races.
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
@@ -70,5 +70,11 @@ jobs:
           if [ -f Givenergy/data/octopus_import_rates.jsonl ]; then git add Givenergy/data/octopus_import_rates.jsonl; fi
           if [ -d Givenergy/reports ]; then git add Givenergy/reports/; fi
           git diff --cached --quiet || git commit -m "Daily Givenergy report $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push
+          # Retry: workflows started together (e.g. by the freshness check) can push
+          # in the same second, so one pull+push can still lose the race.
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push attempt $i failed, retrying..."
+            sleep $((i * 5))
+          done
+          exit 1

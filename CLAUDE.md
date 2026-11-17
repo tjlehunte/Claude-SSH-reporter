@@ -25,9 +25,11 @@ Pages itself is configured with `build_type: workflow` (set via `POST /repos/...
 
 **CDN caching (not configurable from this repo):** GitHub Pages serves through Fastly with `Cache-Control: max-age=600` — a deploy can be fully live server-side while a browser still shows a copy up to 10 minutes old, and a normal refresh doesn't reliably bypass it. This isn't a pipeline bug if a change "isn't showing up" — verify with `curl -sI <url>` (check the `Age` header) or a cache-busting query string (`?v=x`) before assuming the publish failed.
 
-## Shared push concurrency
+## Push concurrency and retries
 
-All four workflows (`monnit-daily-report.yml`, `monnit-weekly-report.yml`, `givenergy-daily-report.yml`, `givenergy-weekly-report.yml`) share one concurrency group (`reporter-writes`) so GitHub Actions queues them instead of racing on `git push` — any two of them pushing to `main` at once risks a non-fast-forward rejection. Each also does `git pull --rebase` before pushing as defense-in-depth against a locally-scheduled AI-insights routine pushing at an unpredictable time outside GitHub Actions' concurrency control.
+Each of the four report workflows (`monnit-daily-report.yml`, `monnit-weekly-report.yml`, `givenergy-daily-report.yml`, `givenergy-weekly-report.yml`) has its **own** concurrency group (`${{ github.workflow }}`). They used to share one group (`reporter-writes`), but GitHub keeps only one *pending* run per group and cancels the rest, so a late daily run could silently cancel a waiting weekly one.
+
+Because they no longer queue behind each other, two workflows can push to `main` at the same moment — e.g. when the weekly-report-freshness-check routine dispatches both weekly workflows together. A single `git pull --rebase && git push` is not enough: on 2026-11-16 the Monnit weekly lost a same-second race to the Givenergy weekly (`cannot lock ref 'refs/heads/main'`), the report didn't land until the late cron run hours later, and the AI-insights routine missed it. So every workflow's push step now retries pull --rebase + push up to 5 times with a short backoff. The workflows commit disjoint files, so the rebase never conflicts. The cloud AI-insights routines push from outside GitHub Actions and have their own one-shot `git pull --rebase` retry.
 
 ## Git push on Windows (this dev machine)
 
