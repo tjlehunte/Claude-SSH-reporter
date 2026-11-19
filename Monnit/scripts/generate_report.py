@@ -229,7 +229,7 @@ ul {{ line-height: 1.6; }}
 <img src="data:image/png;base64,{humidity_chart}" alt="Latest humidity by room">
 <h2>Condensation risk margin</h2>
 <p>Margin = Temperature &minus; Dewpoint. Below <span style="color:{RISK_ELEVATED_COLOR}">{RISK_ELEVATED}&deg;C is elevated risk</span>, below <span style="color:{RISK_HIGH_COLOR}">{RISK_HIGH}&deg;C is high risk</span>.
-Bars are coloured by room type &mdash; <span style="color:#4a7ab5">rooms</span> and <span style="color:#c2793d">lofts</span>,
+Bars are coloured by room type &mdash; <span style="color:#4a7ab5">rooms</span> and <span style="color:#c2793d">lofts</span>
 &mdash; since these swing very differently and shouldn't be judged on the same footing.</p>
 <img src="data:image/png;base64,{margin_chart}" alt="Condensation risk margin by room">
 </body></html>
